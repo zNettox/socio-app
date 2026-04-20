@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background-color: #0a0a0a;
+    color: #f5f0e8;
+    min-height: 100vh;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0a0a0a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 3px;
+  }
+}
+
+@layer components {
+  .font-syne {
+    font-family: 'Syne', sans-serif;
+  }
+
+  .btn-primary {
+    @apply bg-[#BA7517] text-white font-dm font-medium px-6 py-3 rounded-xl transition-all duration-200 hover:bg-[#854F0B] active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply border border-white/20 text-white/80 font-dm font-medium px-6 py-3 rounded-xl transition-all duration-200 hover:border-white/40 hover:text-white active:scale-95;
+  }
+
+  .glass-card {
+    @apply bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm;
+  }
+
+  .input-field {
+    @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 outline-none transition-all duration-200 focus:border-[#BA7517]/50;
+  }
+}
