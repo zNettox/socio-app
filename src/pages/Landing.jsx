@@ -120,77 +120,72 @@ const PRO_ITEMS = [
 
 function PricingSection({ navigate }) {
   const [billing, setBilling] = useState('mensal')
-  const [payMethod, setPayMethod] = useState('pix')
-
-  // Base prices
-  const pro = 49.90
-  const biz = 89.90
-  const proFirst = 19.90
-  const bizFirst = 49.90
-
-  // Discount rates
-  // Trimestral: 15% crédito, 20% pix (15+5)
-  // Anual:      30% crédito, 35% pix (30+5)
-  const disc = {
-    trimestral: { credito: 0.15, pix: 0.20 },
-    anual:      { credito: 0.30, pix: 0.35 },
-  }
 
   const fmt = (n) => n.toFixed(2).replace('.', ',')
 
-  const calc = (base, period, method) => {
-    const months = period === 'trimestral' ? 3 : 12
-    const d = period === 'mensal' ? 0 : disc[period][method]
-    const total = base * months * (1 - d)
-    return { total, perMonth: total / months, savings: base * months - total, pct: Math.round(d * 100) }
+  // Preços únicos — sem distinção PIX/cartão
+  // Mensal: valor cheio (1º mês promocional no cartão recorrente)
+  // Trimestral: R$99,90 Pro / R$179,90 Biz — economiza vs mensal
+  // Anual: R$349,90 Pro / R$649,90 Biz — melhor custo-benefício
+
+  const prices = {
+    pro:  { mensal: 49.90, trimestral: 129.90, anual: 399.90 },
+    biz:  { mensal: 89.90, trimestral: 234.90, anual: 719.90 },
   }
 
-  const showPaySelector = billing === 'trimestral' || billing === 'anual'
+  const perMonth = {
+    pro:  { mensal: 49.90, trimestral: 43.30, anual: 33.33 },
+    biz:  { mensal: 89.90, trimestral: 78.30, anual: 59.99 },
+  }
 
-  const proCalc  = showPaySelector ? calc(pro,  billing, payMethod) : null
-  const bizCalc  = showPaySelector ? calc(biz,  billing, payMethod) : null
+  const savings = {
+    pro:  { trimestral: ((49.90*3) - 129.90).toFixed(2), anual: ((49.90*12) - 399.90).toFixed(2) },
+    biz:  { trimestral: ((89.90*3) - 234.90).toFixed(2), anual: ((89.90*12) - 719.90).toFixed(2) },
+  }
+
+  const discPct = {
+    pro:  { trimestral: Math.round((1 - 129.90/(49.90*3))*100), anual: Math.round((1 - 399.90/(49.90*12))*100) },
+    biz:  { trimestral: Math.round((1 - 234.90/(89.90*3))*100), anual: Math.round((1 - 719.90/(89.90*12))*100) },
+  }
 
   const periodLabel = { mensal: 'mês', trimestral: 'trimestre', anual: 'ano' }
 
-  const PriceBlock = ({ base, firstMonth, planKey }) => {
-    const c = planKey === 'pro' ? proCalc : bizCalc
-    const isHighlight = planKey === 'pro'
+  const PriceBlock = ({ plan }) => {
+    const p = prices[plan]
+    const pm = perMonth[plan]
+    const s = savings[plan]
+    const d = discPct[plan]
+    const isHighlight = plan === 'pro'
+    const color = isHighlight ? 'text-[#BA7517]' : 'text-white/60'
+
     if (billing === 'mensal') return (
       <motion.div key="mensal" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
         <div className="flex items-baseline gap-1">
-          <span className={`font-syne font-black text-4xl leading-none ${isHighlight ? 'text-[#BA7517]' : 'text-white/60'}`}>
-            R${fmt(base)}
-          </span>
+          <span className={`font-syne font-black text-4xl leading-none ${color}`}>R${fmt(p.mensal)}</span>
           <span className="text-white/30 text-sm">/mês</span>
         </div>
         <div className="flex items-center gap-2 mt-2">
           <span className="text-xs px-2.5 py-1 rounded-full bg-[#BA7517]/20 text-[#FAC775] border border-[#BA7517]/20 font-medium">
-            1º mês R${fmt(firstMonth)}
+            1º mês R${plan === 'pro' ? '19,90' : '49,90'} no cartão
           </span>
-          <span className="text-xs text-white/30">depois o valor normal</span>
         </div>
-        <div className="text-xs text-white/30 mt-1">Cartão de crédito • cancele quando quiser</div>
+        <div className="text-xs text-white/30 mt-1">PIX ou cartão • cancele quando quiser</div>
       </motion.div>
     )
+
     return (
-      <motion.div key={billing + payMethod} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <motion.div key={billing} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
         <div className="flex items-baseline gap-1">
-          <span className={`font-syne font-black text-4xl leading-none ${isHighlight ? 'text-[#BA7517]' : 'text-white/60'}`}>
-            R${fmt(c.total)}
-          </span>
+          <span className={`font-syne font-black text-4xl leading-none ${color}`}>R${fmt(p[billing])}</span>
           <span className="text-white/30 text-sm">/{periodLabel[billing]}</span>
         </div>
         <div className="flex items-center gap-2 mt-2">
-          <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${payMethod === 'pix' ? 'bg-green-500/15 text-green-400 border border-green-500/20' : 'bg-white/10 text-white/50'}`}>
-            R${fmt(c.perMonth)}/mês
+          <span className="text-xs px-2.5 py-1 rounded-full bg-green-500/15 text-green-400 border border-green-500/20 font-medium">
+            R${fmt(pm[billing])}/mês
           </span>
-          <span className={`text-xs ${payMethod === 'pix' ? 'text-green-400' : 'text-white/30'}`}>
-            {c.pct}% off — economize R${fmt(c.savings)}
-          </span>
+          <span className="text-xs text-green-400">{d[billing]}% off — economize R${s[billing].replace('.', ',')}</span>
         </div>
-        <div className="text-xs text-white/30 mt-1">
-          {payMethod === 'pix' ? 'PIX • cobrado de uma vez' : 'Cartão de crédito'}
-        </div>
+        <div className="text-xs text-white/30 mt-1">PIX ou cartão • cobrado de uma vez</div>
       </motion.div>
     )
   }
@@ -204,7 +199,7 @@ function PricingSection({ navigate }) {
       </div>
 
       {/* Billing toggle */}
-      <div className="flex flex-wrap items-center gap-4 mb-8">
+      <div className="flex flex-wrap items-center gap-4 mb-10">
         <div className="flex items-center bg-white/[0.05] border border-white/[0.08] rounded-xl p-1">
           {[
             { id: 'mensal', label: 'Mensal' },
@@ -226,70 +221,17 @@ function PricingSection({ navigate }) {
           {billing === 'trimestral' && (
             <motion.span initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
               className="text-xs font-medium px-3 py-1.5 rounded-full bg-[#BA7517]/15 text-[#FAC775] border border-[#BA7517]/20">
-              Até 20% de desconto no PIX
+              Até 13% de desconto
             </motion.span>
           )}
           {billing === 'anual' && (
             <motion.span initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
               className="text-xs font-medium px-3 py-1.5 rounded-full bg-green-500/15 text-green-400 border border-green-500/20">
-              Até 35% de desconto no PIX
+              Até 33% de desconto
             </motion.span>
           )}
         </AnimatePresence>
       </div>
-
-      {/* Payment method selector — shows for trimestral and anual */}
-      <AnimatePresence>
-        {showPaySelector && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mb-8 overflow-hidden"
-          >
-            <p className="text-sm text-white/40 mb-3">Como prefere pagar?</p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setPayMethod('pix')}
-                className={`flex-1 max-w-xs p-4 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
-                  payMethod === 'pix' ? 'border-[#BA7517]/60 bg-[#BA7517]/[0.07]' : 'border-white/[0.08] bg-white/[0.02] hover:border-white/20'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M3.5 8.5l2.5 2.5 6-7" stroke="#4ade80" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      <circle cx="8" cy="8" r="7" stroke="#4ade80" strokeWidth="1"/>
-                    </svg>
-                    <span className="text-sm font-medium text-white/80">PIX</span>
-                  </div>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-green-500/15 text-green-400 border border-green-500/20">
-                    +5% extra
-                  </span>
-                </div>
-                <div className="text-xs text-white/40 leading-relaxed">Melhor desconto. Cobrado de uma vez.</div>
-              </button>
-
-              <button
-                onClick={() => setPayMethod('credito')}
-                className={`flex-1 max-w-xs p-4 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
-                  payMethod === 'credito' ? 'border-[#BA7517]/60 bg-[#BA7517]/[0.07]' : 'border-white/[0.08] bg-white/[0.02] hover:border-white/20'
-                }`}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <rect x="1" y="3" width="14" height="10" rx="2" stroke="#94a3b8" strokeWidth="1"/>
-                    <path d="M1 7h14" stroke="#94a3b8" strokeWidth="1"/>
-                    <rect x="3" y="9" width="3" height="1.5" rx="0.5" fill="#94a3b8"/>
-                  </svg>
-                  <span className="text-sm font-medium text-white/80">Cartão de crédito</span>
-                </div>
-                <div className="text-xs text-white/40 leading-relaxed">Parcelado. Desconto menor.</div>
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Plans grid */}
       <div className="grid md:grid-cols-3 gap-6">
@@ -324,7 +266,7 @@ function PricingSection({ navigate }) {
           </div>
           <div className="relative z-10 min-h-[80px]">
             <AnimatePresence mode="wait">
-              <PriceBlock key={billing + payMethod + 'pro'} base={pro} firstMonth={proFirst} planKey="pro" />
+              <PriceBlock key={billing + 'pro'} plan="pro" />
             </AnimatePresence>
           </div>
           <div className="border-t border-white/[0.08] my-6" />
@@ -338,16 +280,8 @@ function PricingSection({ navigate }) {
           </div>
           <button onClick={() => navigate('/login')}
             className="w-full py-3.5 rounded-lg text-sm font-medium bg-[#BA7517] text-white hover:bg-[#9a6113] transition-all duration-200 active:scale-95 relative z-10">
-            {billing === 'mensal'
-              ? `Começar por R$${fmt(proFirst)}`
-              : `Assinar por R$${fmt(proCalc.total)} no ${payMethod === 'pix' ? 'PIX' : 'crédito'}`}
+            {billing === 'mensal' ? 'Começar por R$19,90' : `Assinar por R$${fmt(prices.pro[billing])}`}
           </button>
-          {showPaySelector && payMethod === 'credito' && (
-            <button onClick={() => setPayMethod('pix')}
-              className="w-full mt-2 py-2 text-xs text-green-400 hover:text-green-300 transition-colors relative z-10">
-              Mudar para PIX e economizar R${fmt(calc(pro, billing, 'pix').total - proCalc.total === 0 ? calc(pro, billing, 'credito').total - calc(pro, billing, 'pix').total : calc(pro, billing, 'credito').total - calc(pro, billing, 'pix').total)} →
-            </button>
-          )}
         </div>
 
         {/* Business */}
@@ -356,7 +290,7 @@ function PricingSection({ navigate }) {
           <div className="font-syne font-black text-xl text-white/80 mb-3 relative z-10">Business</div>
           <div className="relative z-10 min-h-[80px]">
             <AnimatePresence mode="wait">
-              <PriceBlock key={billing + payMethod + 'biz'} base={biz} firstMonth={bizFirst} planKey="biz" />
+              <PriceBlock key={billing + 'biz'} plan="biz" />
             </AnimatePresence>
           </div>
           <div className="border-t border-white/[0.07] my-6" />
@@ -370,9 +304,7 @@ function PricingSection({ navigate }) {
           </div>
           <button onClick={() => navigate('/login')}
             className="w-full py-3 rounded-lg text-sm font-medium border border-white/15 text-white/50 hover:border-white/30 hover:text-white transition-all duration-200 active:scale-95 relative z-10">
-            {billing === 'mensal'
-              ? `Começar por R$${fmt(bizFirst)}`
-              : `Assinar por R$${fmt(bizCalc.total)} no ${payMethod === 'pix' ? 'PIX' : 'crédito'}`}
+            {billing === 'mensal' ? 'Começar por R$49,90' : `Assinar por R$${fmt(prices.biz[billing])}`}
           </button>
         </div>
       </div>
