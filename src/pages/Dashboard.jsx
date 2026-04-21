@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { jsPDF } from 'jspdf'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -39,8 +40,7 @@ const playSound = (type) => {
 }
 
 // ── PDF Generation ─────────────────────────────────────────────────────────
-const generateProposalPDF = async (content, userData) => {
-  const { jsPDF } = await import('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+const generateProposalPDF = (content, userData) => {
   const doc = new jsPDF()
   const pageW = doc.internal.pageSize.getWidth()
 
@@ -300,7 +300,7 @@ export default function Dashboard() {
   const downloadPDF = async (proposal) => {
     playSound('success')
     try {
-      const pdfdoc = await generateProposalPDF(proposal.content, userData)
+      const pdfdoc = generateProposalPDF(proposal.content, userData)
       pdfdoc.save(`proposta-${proposal.title.replace(/\s+/g, '-').toLowerCase()}.pdf`)
     } catch (err) {
       alert('Erro ao gerar PDF. Tente novamente.')
