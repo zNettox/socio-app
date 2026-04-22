@@ -218,15 +218,15 @@ export default function Dashboard() {
 
   const S = { // Inline styles
     root: { minHeight: '100vh', background: '#060606', color: '#fff', fontFamily: "'DM Sans', sans-serif", display: 'flex', flexDirection: 'column' },
-    header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', height: 56, borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(6,6,6,0.95)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 30 },
+    header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 12px', height: 52, borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(6,6,6,0.95)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 30 },
     logo: { fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18, letterSpacing: '-0.5px' },
     pill: (active) => ({ padding: '4px 12px', borderRadius: 20, fontSize: 11, fontWeight: 500, border: active ? 'none' : '1px solid rgba(255,255,255,0.1)', background: active ? '#BA7517' : 'transparent', color: active ? '#fff' : 'rgba(255,255,255,0.4)', cursor: 'pointer', transition: 'all 0.2s' }),
     avatarBtn: { width: 32, height: 32, borderRadius: 10, overflow: 'hidden', border: '1.5px solid rgba(255,255,255,0.12)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(186,117,23,0.15)', transition: 'border-color 0.2s', flexShrink: 0 },
-    tabBar: { display: 'flex', gap: 1, padding: '0 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(6,6,6,0.8)', backdropFilter: 'blur(10px)', overflowX: 'auto' },
-    tab: (active) => ({ display: 'flex', alignItems: 'center', gap: 7, padding: '12px 14px', fontSize: 13, fontWeight: active ? 500 : 400, color: active ? '#FAC775' : 'rgba(255,255,255,0.35)', borderBottom: `2px solid ${active ? '#BA7517' : 'transparent'}`, cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s', background: 'none', border: 'none', borderBottom: `2px solid ${active ? '#BA7517' : 'transparent'}`, marginBottom: -1 }),
+    tabBar: { display: 'flex', gap: 0, padding: '0 8px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(6,6,6,0.8)', backdropFilter: 'blur(10px)', overflowX: 'auto', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' },
+    tab: (active) => ({ display: 'flex', alignItems: 'center', gap: 5, padding: '10px 10px', fontSize: 12, fontWeight: active ? 500 : 400, color: active ? '#FAC775' : 'rgba(255,255,255,0.35)', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s', background: 'none', border: 'none', borderBottom: `2px solid ${active ? '#BA7517' : 'transparent'}`, marginBottom: -1, flexShrink: 0 }),
     sidebar: { width: 240, borderRight: '1px solid rgba(255,255,255,0.05)', background: '#080808', display: 'flex', flexDirection: 'column', flexShrink: 0, height: '100%' },
     convBtn: (active) => ({ width: '100%', textAlign: 'left', padding: '9px 12px', borderRadius: 8, fontSize: 12, color: active ? '#fff' : 'rgba(255,255,255,0.4)', background: active ? 'rgba(255,255,255,0.06)' : 'transparent', border: 'none', cursor: 'pointer', transition: 'all 0.2s', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }),
-    inputWrap: { display: 'flex', gap: 10, padding: '12px 20px', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(6,6,6,0.9)' },
+    inputWrap: { display: 'flex', gap: 8, padding: '10px 12px', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(6,6,6,0.9)', position: 'sticky', bottom: 0 },
     input: { flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 16px', fontSize: 13, color: '#fff', outline: 'none', fontFamily: "'DM Sans', sans-serif" },
     sendBtn: (disabled) => ({ width: 40, height: 40, borderRadius: 12, background: disabled ? 'rgba(186,117,23,0.3)' : '#BA7517', color: '#fff', border: 'none', cursor: disabled ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background 0.2s' }),
   }
@@ -251,7 +251,7 @@ export default function Dashboard() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {plan === 'free' && (
-            <button onClick={() => navigate('/checkout?plan=pro_mensal_promo')} style={S.pill(true)}>
+            <button onClick={() => { setProfileOpen(false); navigate('/checkout?plan=pro_mensal_promo') }} style={S.pill(true)}>
               Fazer upgrade
             </button>
           )}
@@ -284,7 +284,7 @@ export default function Dashboard() {
       {isLimited && (
         <div style={{ background: 'rgba(186,117,23,0.08)', borderBottom: '1px solid rgba(186,117,23,0.15)', padding: '10px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: 13, color: '#FAC775' }}>Créditos gratuitos esgotados.</span>
-          <button onClick={() => navigate('/checkout?plan=pro_mensal_promo')} style={{ fontSize: 12, fontWeight: 500, background: '#BA7517', color: '#fff', padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer' }}>
+          <button onClick={() => { setProfileOpen(false); navigate('/checkout?plan=pro_mensal_promo') }} style={{ fontSize: 12, fontWeight: 500, background: '#BA7517', color: '#fff', padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer' }}>
             Pro por R$19,90
           </button>
         </div>
@@ -330,7 +330,7 @@ export default function Dashboard() {
             {/* CHAT */}
             {activeTab === 'chat' && (
               <motion.div key="chat" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                <div style={{ flex: 1, overflowY: 'auto', padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 720, width: '100%', margin: '0 auto' }}>
+                <div style={{ flex: 1, overflowY: 'auto', padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 720, width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
                   {messages.length === 0 && (
                     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: 'center', paddingTop: 48 }}>
                       <div style={{ width: 56, height: 56, borderRadius: 16, background: 'rgba(186,117,23,0.08)', border: '1px solid rgba(186,117,23,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
@@ -385,7 +385,7 @@ export default function Dashboard() {
 
             {/* PROPOSALS */}
             {activeTab === 'proposals' && (
-              <motion.div key="proposals" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} style={{ flex: 1, overflowY: 'auto', padding: '28px 24px', maxWidth: 760, width: '100%', margin: '0 auto' }}>
+              <motion.div key="proposals" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} style={{ flex: 1, overflowY: 'auto', padding: '20px 14px', maxWidth: 760, width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
                 <div style={{ marginBottom: 24 }}>
                   <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 20, marginBottom: 4 }}>Propostas</div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>Propostas geradas pelo assistente — baixe em PDF com um clique.</div>
@@ -426,7 +426,7 @@ export default function Dashboard() {
 
             {/* SERVICES */}
             {activeTab === 'services' && (
-              <motion.div key="services" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} style={{ flex: 1, overflowY: 'auto', padding: '28px 24px', maxWidth: 760, width: '100%', margin: '0 auto' }}>
+              <motion.div key="services" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} style={{ flex: 1, overflowY: 'auto', padding: '20px 14px', maxWidth: 760, width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
                 <div style={{ marginBottom: 28 }}>
                   <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 20, marginBottom: 4 }}>Serviços criativos</div>
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>Feito por humanos da Neves Software — artes, vídeos e gravação em Manaus.</div>
@@ -518,7 +518,7 @@ export default function Dashboard() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setProfileOpen(false)}
               style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 40, backdropFilter: 'blur(4px)' }} />
             <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-              style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: '100%', maxWidth: 400, background: '#0e0e0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, zIndex: 50, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.6)' }}>
+              style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 'calc(100% - 32px)', maxWidth: 400, background: '#0e0e0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, zIndex: 50, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.6)' }}>
 
               {/* Profile header */}
               <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -584,7 +584,7 @@ export default function Dashboard() {
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <div>
                               <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 16 }}>Plano {PLAN_LABELS[plan]}</div>
-                              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>{plan === 'free' ? 'Grátis para sempre' : 'Renovação automática'}</div>
+                              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 4 }}>{plan === 'free' ? 'Grátis para sempre' : userData?.planStatus === 'ativa' ? 'Assinatura ativa' : 'Renovação automática'}</div>
                             </div>
                             <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(186,117,23,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#BA7517' }}>
                               <Icon.Crown />

@@ -114,7 +114,7 @@ export default function Landing() {
       `}</style>
 
       {/* ── NAV ─────────────────────────────────────────────────────────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4"
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-8 py-3 md:py-4"
         style={{ background: 'rgba(6,6,6,0.7)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         <div className="flex items-center gap-2.5">
           <SocioMark size={28} />
@@ -163,8 +163,8 @@ export default function Landing() {
           backgroundSize: '60px 60px'
         }} />
 
-        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 max-w-7xl mx-auto px-8 w-full">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 max-w-7xl mx-auto px-4 md:px-8 w-full">
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
 
             {/* Left */}
             <div>
@@ -299,7 +299,7 @@ export default function Landing() {
       </div>
 
       {/* ── FEATURES ────────────────────────────────────────────────────── */}
-      <section id="produto" style={{ maxWidth: 1200, margin: '0 auto', padding: '120px 32px' }}>
+      <section id="produto" style={{ maxWidth: 1200, margin: '0 auto', padding: '80px 20px' }}>
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
           <div style={{ fontSize: 11, color: '#BA7517', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16, fontWeight: 500 }}>Funcionalidades</div>
           <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(36px, 4vw, 52px)', lineHeight: 1.1, letterSpacing: '-2px', marginBottom: 80 }}>
@@ -308,7 +308,7 @@ export default function Landing() {
           </h2>
         </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2, background: 'rgba(255,255,255,0.04)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 2, background: 'rgba(255,255,255,0.04)' }}>
           {FEATURES.map((f, i) => (
             <motion.div key={f.title} className="card-hover"
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.07 }}
@@ -326,7 +326,7 @@ export default function Landing() {
       </section>
 
       {/* ── FOR WHO ─────────────────────────────────────────────────────── */}
-      <section id="para-quem" style={{ background: 'rgba(255,255,255,0.01)', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)', padding: '120px 32px' }}>
+      <section id="para-quem" style={{ background: 'rgba(255,255,255,0.01)', borderTop: '1px solid rgba(255,255,255,0.04)', borderBottom: '1px solid rgba(255,255,255,0.04)', padding: '80px 20px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <div style={{ fontSize: 11, color: '#BA7517', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16, fontWeight: 500 }}>Para quem</div>
@@ -373,7 +373,7 @@ export default function Landing() {
       </section>
 
       {/* ── PRICING ─────────────────────────────────────────────────────── */}
-      <section id="planos" style={{ maxWidth: 1100, margin: '0 auto', padding: '120px 32px' }}>
+      <section id="planos" style={{ maxWidth: 1100, margin: '0 auto', padding: '80px 20px' }}>
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <div style={{ fontSize: 11, color: '#BA7517', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16, fontWeight: 500 }}>Planos</div>
           <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(36px, 4vw, 52px)', lineHeight: 1.1, letterSpacing: '-2px', marginBottom: 48 }}>
@@ -402,7 +402,7 @@ export default function Landing() {
           </AnimatePresence>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
           {/* Free */}
           {[
             { name: 'Grátis', price: 'R$0', priceNote: null, perMonth: null, items: ['Precificação básica', '3 propostas por mês', 'Assistente limitado'], cta: 'Criar conta grátis', highlight: false },
@@ -478,7 +478,7 @@ export default function Landing() {
       </section>
 
       {/* ── CTA ─────────────────────────────────────────────────────────── */}
-      <section style={{ padding: '0 32px 80px' }}>
+      <section style={{ padding: '0 20px 80px' }}>
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           className="grad-border" style={{ maxWidth: 1100, margin: '0 auto', borderRadius: 24, background: 'rgba(186,117,23,0.04)', padding: '80px 40px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, rgba(186,117,23,0.08) 0%, transparent 60%)', pointerEvents: 'none' }} />
