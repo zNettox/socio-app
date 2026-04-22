@@ -517,23 +517,26 @@ export default function Dashboard() {
           <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setProfileOpen(false)}
               style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 40, backdropFilter: 'blur(4px)' }} />
-            <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }}
-              style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 'calc(100% - 32px)', maxWidth: 400, background: '#0e0e0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, zIndex: 50, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.6)' }}>
+            <motion.div initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 60 }} transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              style={{ position: 'fixed', bottom: 0, left: 0, right: 0, top: 'auto', transform: 'none', width: '100%', maxWidth: '100%', background: '#0e0e0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px 20px 0 0', zIndex: 50, overflow: 'hidden', boxShadow: '0 -20px 60px rgba(0,0,0,0.7)', maxHeight: '90vh', overflowY: 'auto' }}>
 
               {/* Profile header */}
-              <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 0' }}>
+                <div style={{ width: 40, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)' }} />
+              </div>
+              <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 16 }}>Minha conta</div>
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 6 }}>
                   {['main', 'plan', 'payment'].map(v => (
                     <button key={v} onClick={() => setProfileView(v)}
-                      style={{ padding: '5px 12px', borderRadius: 8, fontSize: 11, fontWeight: 500, background: profileView === v ? 'rgba(186,117,23,0.15)' : 'transparent', color: profileView === v ? '#FAC775' : 'rgba(255,255,255,0.3)', border: profileView === v ? '1px solid rgba(186,117,23,0.2)' : '1px solid transparent', cursor: 'pointer', transition: 'all 0.2s' }}>
-                      {v === 'main' ? 'Perfil' : v === 'plan' ? 'Plano' : 'Pagamento'}
+                      style={{ padding: '6px 10px', borderRadius: 8, fontSize: 11, fontWeight: 500, background: profileView === v ? 'rgba(186,117,23,0.15)' : 'transparent', color: profileView === v ? '#FAC775' : 'rgba(255,255,255,0.3)', border: profileView === v ? '1px solid rgba(186,117,23,0.2)' : '1px solid transparent', cursor: 'pointer', transition: 'all 0.2s', flexShrink: 0 }}>
+                      {v === 'main' ? 'Perfil' : v === 'plan' ? 'Plano' : 'Pgto'}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div style={{ padding: '24px' }}>
+              <div style={{ padding: '16px 20px 32px' }}>
                 <AnimatePresence mode="wait">
 
                   {/* MAIN VIEW */}
