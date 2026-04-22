@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import Cashflow from './Cashflow'
 import { jsPDF } from 'jspdf'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
@@ -443,7 +444,8 @@ export default function Dashboard() {
               { id: 'proposals', label: 'Propostas' },
               { id: 'pricing', label: 'Precificação' },
               { id: 'cashflow', label: 'Caixa' },
-              { id: 'support', label: 'Suporte' },
+              { id: 'services', label: 'Serviços' },
+            { id: 'support', label: 'Suporte' },
             ].map(tab => (
               <button key={tab.id} onClick={() => switchTab(tab.id)}
                 className={`py-3 px-3 text-sm whitespace-nowrap transition-all duration-200 border-b-2 -mb-px ${
@@ -619,11 +621,115 @@ export default function Dashboard() {
 
             {/* ── Cashflow Tab ─────────────────────────────────────────────── */}
             {activeTab === 'cashflow' && (
-              <motion.div key="cashflow" {...pageTransition} className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-4xl mb-4">📊</div>
-                  <h3 className="font-syne font-bold text-xl mb-2">Controle de caixa</h3>
-                  <p className="text-white/40 text-sm">Em breve</p>
+              <motion.div key="cashflow" {...pageTransition} className="flex-1 flex flex-col">
+                <Cashflow />
+              </motion.div>
+            )}
+
+
+            {/* ── Services Tab ─────────────────────────────────────────────── */}
+            {activeTab === 'services' && (
+              <motion.div key="services" {...pageTransition} className="flex-1 overflow-y-auto p-6 max-w-3xl mx-auto w-full">
+                <div className="mb-8">
+                  <h2 className="font-syne font-bold text-xl mb-1">Serviços criativos</h2>
+                  <p className="text-white/40 text-sm">Feito por humanos da Neves Software — artes, vídeos e gravação em Manaus.</p>
+                </div>
+
+                {[
+                  {
+                    category: 'Artes digitais',
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="2" y="2" width="16" height="16" rx="3" stroke="#BA7517" strokeWidth="1.3"/>
+                        <circle cx="7" cy="7" r="1.5" fill="#BA7517"/>
+                        <path d="M2 13l4-4 3 3 3-4 6 5" stroke="#BA7517" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    ),
+                    items: [
+                      { name: 'Post feed Instagram', price: 'R$35', desc: 'Arte profissional para o feed do seu negócio' },
+                      { name: 'Story', price: 'R$25', desc: 'Story criativo com identidade visual' },
+                      { name: 'Capa para destaque', price: 'R$20', desc: 'Ícone de destaque para o seu perfil' },
+                      { name: 'Kit 5 posts', price: 'R$120', desc: 'Economia de R$55 vs avulso' },
+                      { name: 'Kit 10 posts', price: 'R$199', desc: 'Economia de R$151 vs avulso' },
+                    ]
+                  },
+                  {
+                    category: 'Edição de vídeo',
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <rect x="2" y="4" width="12" height="12" rx="2" stroke="#BA7517" strokeWidth="1.3"/>
+                        <path d="M14 8l4-2v8l-4-2V8z" stroke="#BA7517" strokeWidth="1.3" strokeLinejoin="round"/>
+                      </svg>
+                    ),
+                    items: [
+                      { name: 'Edição de Reels (até 60s)', price: 'R$89', desc: 'Edição profissional com cortes, trilha e legendas' },
+                      { name: 'Pacote 4 Reels', price: 'R$299', desc: 'Economia de R$57 vs avulso' },
+                    ]
+                  },
+                  {
+                    category: 'Gravação local — Manaus',
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="7" stroke="#BA7517" strokeWidth="1.3"/>
+                        <circle cx="10" cy="10" r="3" stroke="#BA7517" strokeWidth="1.3"/>
+                        <circle cx="10" cy="10" r="1" fill="#BA7517"/>
+                      </svg>
+                    ),
+                    badge: 'Apenas Manaus',
+                    items: [
+                      { name: 'Gravação de 1 Reels', price: 'R$149', desc: 'Gravação no seu estabelecimento em Manaus' },
+                      { name: 'Gravação + edição de 1 Reels', price: 'R$199', desc: 'Gravação e edição completa' },
+                      { name: 'Gravação + edição de 4 Reels', price: 'R$599', desc: 'Economia de R$197 vs avulso' },
+                      { name: 'Ensaio fotográfico para negócio', price: 'R$199', desc: 'Fotos profissionais do seu espaço e produtos' },
+                    ]
+                  },
+                ].map((section) => (
+                  <div key={section.category} className="mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 rounded-lg bg-[#BA7517]/10 flex items-center justify-center">
+                        {section.icon}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-syne font-bold text-base">{section.category}</h3>
+                        {section.badge && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#BA7517]/20 text-[#FAC775] border border-[#BA7517]/20 font-medium">
+                            {section.badge}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      {section.items.map((item) => (
+                        <div key={item.name} className="flex items-center justify-between p-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04] transition-colors group">
+                          <div className="flex-1">
+                            <div className="text-sm font-medium text-white/80">{item.name}</div>
+                            <div className="text-xs text-white/35 mt-0.5">{item.desc}</div>
+                          </div>
+                          <div className="flex items-center gap-3 ml-4">
+                            <span className="font-syne font-black text-base text-[#BA7517]">{item.price}</span>
+                            <a
+                              href={`https://wa.me/5592981417222?text=Olá! Tenho interesse no serviço: *${item.name}* (${item.price}). Meu negócio é ${userData?.businessName || 'meu negócio'}.`}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={() => playSound('click')}
+                              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 transition-colors whitespace-nowrap"
+                            >
+                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                                <path d="M6 1C3.24 1 1 3.24 1 6c0 .93.25 1.8.69 2.55L1 11l2.55-.65C4.28 10.76 5.12 11 6 11c2.76 0 5-2.24 5-5S8.76 1 6 1z" stroke="#4ade80" strokeWidth="0.8"/>
+                              </svg>
+                              Contratar
+                            </a>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                <div className="mt-4 p-4 rounded-xl border border-[#BA7517]/20 bg-[#BA7517]/[0.03]">
+                  <p className="text-xs text-white/40 leading-relaxed">
+                    Após clicar em Contratar, você será redirecionado para o WhatsApp da Neves Software para combinar detalhes, prazo e pagamento. Atendimento de segunda a sexta, das 9h às 18h.
+                  </p>
                 </div>
               </motion.div>
             )}
