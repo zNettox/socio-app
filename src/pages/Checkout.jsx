@@ -1,215 +1,221 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
-import { doc, setDoc } from 'firebase/firestore'
-import { auth, db } from '../firebase'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { auth } from '../firebase'
 
-const BUSINESS_TYPES = [
-  { id: 'salao', label: 'Salão de beleza', icon: '💇' },
-  { id: 'barbearia', label: 'Barbearia', icon: '✂️' },
-  { id: 'lanchonete', label: 'Lanchonete / Marmitaria', icon: '🍱' },
-  { id: 'manicure', label: 'Manicure / Estética', icon: '💅' },
-  { id: 'fotografo', label: 'Fotógrafo', icon: '📸' },
-  { id: 'designer', label: 'Designer / Criativo', icon: '🎨' },
-  { id: 'marceneiro', label: 'Marceneiro / Artesão', icon: '🔨' },
-  { id: 'eletricista', label: 'Eletricista / Técnico', icon: '⚡' },
-  { id: 'confeiteiro', label: 'Confeiteiro / Doceiro', icon: '🎂' },
-  { id: 'outro', label: 'Outro negócio', icon: '💼' },
-]
+const PLAN_INFO = {
+  pro_mensal_promo: { label: 'Pro — Primeiro mês', price: 'R$19,90', desc: 'Depois R$49,90/mês' },
+  pro_mensal: { label: 'Pro — Mensal', price: 'R$49,90', desc: 'Cancele quando quiser' },
+  pro_trimestral_pix: { label: 'Pro — Trimestral PIX', price: 'R$119,76', desc: '20% off — R$39,92/mês' },
+  pro_anual_pix: { label: 'Pro — Anual PIX', price: 'R$389,22', desc: '35% off — R$32,44/mês' },
+  biz_mensal_promo: { label: 'Business — Primeiro mês', price: 'R$49,90', desc: 'Depois R$89,90/mês' },
+  biz_mensal: { label: 'Business — Mensal', price: 'R$89,90', desc: 'Cancele quando quiser' },
+  biz_trimestral_pix: { label: 'Business — Trimestral PIX', price: 'R$215,76', desc: '20% off — R$71,92/mês' },
+  biz_anual_pix: { label: 'Business — Anual PIX', price: 'R$701,22', desc: '35% off — R$58,44/mês' },
+}
 
-const STEPS = ['Olá', 'Seu negócio', 'Localização', 'Equipe', 'Pronto']
-
-export default function Onboarding() {
+export default function Checkout() {
   const navigate = useNavigate()
-  const [step, setStep] = useState(0)
-  const [data, setData] = useState({ businessName: '', businessType: '', city: '', teamSize: 'solo' })
+  const [params] = useSearchParams()
+  const planKey = params.get('plan') || 'pro_mensal_promo'
+  const planInfo = PLAN_INFO[planKey] || PLAN_INFO['pro_mensal_promo']
+
+  const [form, setForm] = useState({ name: '', cpf: '', phone: '' })
   const [loading, setLoading] = useState(false)
+  const [pix, setPix] = useState(null)
+  const [copied, setCopied] = useState(false)
+  const [error, setError] = useState('')
 
-  const next = () => setStep(s => s + 1)
-  const back = () => setStep(s => s - 1)
+  const user = auth.currentUser
 
-  const finish = async () => {
+  const handlePay = async (e) => {
+    e.preventDefault()
     setLoading(true)
+    setError('')
+
+    const [plan, ...billingParts] = planKey.split('_')
+    const billing = billingParts.join('_')
+
     try {
-      const user = auth.currentUser
-      await setDoc(doc(db, 'users', user.uid), {
-        ...data,
-        email: user.email,
-        onboardingComplete: true,
-        createdAt: new Date(),
-        plan: 'free',
+      const res = await fetch('/.netlify/functions/create-pix', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan,
+          billing,
+          userName: form.name,
+          userEmail: user?.email,
+          userPhone: form.phone.replace(/\D/g, ''),
+          userDocument: form.cpf.replace(/\D/g, ''),
+          userId: user?.uid,
+        }),
       })
-      navigate('/dashboard')
+
+      const data = await res.json()
+
+      if (data?.pix_qr_code || data?.pix_code) {
+        setPix({
+          qrCode: data.pix_qr_code,
+          copyPaste: data.pix_code || data.pix_copy_paste,
+          hash: data.hash,
+        })
+      } else {
+        setError('Erro ao gerar PIX. Tente novamente.')
+        console.error(data)
+      }
     } catch (err) {
-      console.error(err)
+      setError('Erro de conexão. Tente novamente.')
     } finally {
       setLoading(false)
     }
   }
 
+  const copyPix = () => {
+    navigator.clipboard.writeText(pix.copyPaste)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 3000)
+  }
+
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
-      {/* Progress */}
-      <div className="px-6 pt-8 pb-4">
-        <div className="flex items-center gap-2 mb-6">
-          <div className="font-syne font-black text-xl">sócio<span className="text-[#BA7517]">.</span></div>
-        </div>
-        <div className="flex gap-2">
-          {STEPS.map((s, i) => (
-            <div
-              key={s}
-              className={`h-1 flex-1 rounded-full transition-all duration-500 ${i <= step ? 'bg-[#BA7517]' : 'bg-white/10'}`}
-            />
-          ))}
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#080808] text-[#f0ebe0] flex items-center justify-center px-4 py-10">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md"
+      >
+        {/* Header */}
+        <button onClick={() => navigate(-1)} className="text-white/40 hover:text-white/70 text-sm mb-8 flex items-center gap-2 transition-colors">
+          ← Voltar
+        </button>
 
-      <div className="flex-1 flex items-center justify-center px-6 pb-10">
-        <div className="w-full max-w-md">
-          <AnimatePresence mode="wait">
-            {/* Step 0 — Welcome */}
-            {step === 0 && (
-              <motion.div key="s0" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
-                <div className="text-5xl mb-6">👋</div>
-                <h1 className="font-syne font-black text-3xl mb-3">Seja bem-vindo ao Sócio</h1>
-                <p className="text-white/50 leading-relaxed mb-8">
-                  Vou conhecer um pouco do seu negócio para personalizar tudo para você. Leva menos de 2 minutos.
-                </p>
-                <button onClick={next} className="btn-primary w-full">Vamos lá →</button>
-              </motion.div>
-            )}
+        <div className="font-syne font-black text-2xl mb-1">
+          sócio<span className="text-[#BA7517]">.</span>
+        </div>
+        <p className="text-white/40 text-sm mb-8">Finalizar assinatura</p>
 
-            {/* Step 1 — Business */}
-            {step === 1 && (
-              <motion.div key="s1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
-                <h2 className="font-syne font-black text-2xl mb-1">Qual é o nome do seu negócio?</h2>
-                <p className="text-white/40 text-sm mb-6">Ex: Salão da Cleusa, Lanche do Mário</p>
+        {/* Plan summary */}
+        <div className="border border-[#BA7517]/30 rounded-xl p-5 mb-6 bg-[#BA7517]/[0.04]">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-syne font-bold text-base">{planInfo.label}</div>
+              <div className="text-xs text-white/40 mt-0.5">{planInfo.desc}</div>
+            </div>
+            <div className="font-syne font-black text-2xl text-[#BA7517]">{planInfo.price}</div>
+          </div>
+          <div className="mt-3 pt-3 border-t border-white/[0.07] flex items-center gap-2 text-xs text-green-400">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="5" stroke="#4ade80" strokeWidth="1"/>
+              <path d="M3.5 6l2 2 3-3" stroke="#4ade80" strokeWidth="1.2" strokeLinecap="round"/>
+            </svg>
+            Pagamento via PIX — aprovação instantânea
+          </div>
+        </div>
+
+        <AnimatePresence mode="wait">
+          {!pix ? (
+            <motion.form key="form" onSubmit={handlePay} className="space-y-4">
+              <div>
+                <label className="text-xs text-white/40 mb-1.5 block">Nome completo</label>
                 <input
                   type="text"
-                  placeholder="Nome do seu negócio"
-                  value={data.businessName}
-                  onChange={e => setData(d => ({ ...d, businessName: e.target.value }))}
-                  className="input-field mb-6"
-                  autoFocus
-                />
-                <h2 className="font-syne font-black text-xl mb-4">O que você faz?</h2>
-                <div className="grid grid-cols-2 gap-3">
-                  {BUSINESS_TYPES.map(bt => (
-                    <button
-                      key={bt.id}
-                      onClick={() => setData(d => ({ ...d, businessType: bt.id }))}
-                      className={`flex items-center gap-3 p-3 rounded-xl border text-sm transition-all duration-200 text-left ${
-                        data.businessType === bt.id
-                          ? 'border-[#BA7517] bg-[#BA7517]/10 text-[#FAC775]'
-                          : 'border-white/10 text-white/60 hover:border-white/20'
-                      }`}
-                    >
-                      <span>{bt.icon}</span>
-                      <span>{bt.label}</span>
-                    </button>
-                  ))}
-                </div>
-                <div className="flex gap-3 mt-6">
-                  <button onClick={back} className="btn-ghost flex-1">Voltar</button>
-                  <button
-                    onClick={next}
-                    disabled={!data.businessName || !data.businessType}
-                    className="btn-primary flex-1 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    Continuar →
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 2 — Location */}
-            {step === 2 && (
-              <motion.div key="s2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
-                <h2 className="font-syne font-black text-2xl mb-1">Onde você atua?</h2>
-                <p className="text-white/40 text-sm mb-6">Usado para calcular preços de mercado da sua região</p>
-                <input
-                  type="text"
-                  placeholder="Sua cidade — ex: Manaus, AM"
-                  value={data.city}
-                  onChange={e => setData(d => ({ ...d, city: e.target.value }))}
+                  placeholder="Seu nome completo"
+                  value={form.name}
+                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                   className="input-field"
-                  autoFocus
+                  required
                 />
-                <div className="flex gap-3 mt-6">
-                  <button onClick={back} className="btn-ghost flex-1">Voltar</button>
-                  <button
-                    onClick={next}
-                    disabled={!data.city}
-                    className="btn-primary flex-1 disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    Continuar →
-                  </button>
+              </div>
+              <div>
+                <label className="text-xs text-white/40 mb-1.5 block">CPF</label>
+                <input
+                  type="text"
+                  placeholder="000.000.000-00"
+                  value={form.cpf}
+                  onChange={e => setForm(f => ({ ...f, cpf: e.target.value }))}
+                  className="input-field"
+                  required
+                  maxLength={14}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-white/40 mb-1.5 block">WhatsApp</label>
+                <input
+                  type="text"
+                  placeholder="(92) 99999-9999"
+                  value={form.phone}
+                  onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                  className="input-field"
+                  required
+                />
+              </div>
+              {error && (
+                <div className="text-red-400 text-sm px-4 py-3 rounded-xl bg-red-400/10 border border-red-400/20">
+                  {error}
                 </div>
-              </motion.div>
-            )}
+              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  `Gerar PIX — ${planInfo.price}`
+                )}
+              </button>
+            </motion.form>
+          ) : (
+            <motion.div
+              key="pix"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center"
+            >
+              <div className="text-4xl mb-4">✅</div>
+              <h2 className="font-syne font-black text-xl mb-2">PIX gerado!</h2>
+              <p className="text-white/40 text-sm mb-6">
+                Copie o código abaixo e pague no seu banco. Aprovação em segundos.
+              </p>
 
-            {/* Step 3 — Team */}
-            {step === 3 && (
-              <motion.div key="s3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }}>
-                <h2 className="font-syne font-black text-2xl mb-1">Como é sua equipe?</h2>
-                <p className="text-white/40 text-sm mb-6">Isso ajuda a personalizar suas análises de custo</p>
-                <div className="space-y-3">
-                  {[
-                    { id: 'solo', label: 'Trabalho sozinho', sub: 'Autônomo / MEI solo' },
-                    { id: 'small', label: 'Tenho até 5 pessoas', sub: 'Pequena equipe' },
-                    { id: 'medium', label: 'Tenho 6 a 15 pessoas', sub: 'Negócio em crescimento' },
-                  ].map(opt => (
-                    <button
-                      key={opt.id}
-                      onClick={() => setData(d => ({ ...d, teamSize: opt.id }))}
-                      className={`w-full flex items-center justify-between p-4 rounded-xl border text-left transition-all duration-200 ${
-                        data.teamSize === opt.id
-                          ? 'border-[#BA7517] bg-[#BA7517]/10'
-                          : 'border-white/10 hover:border-white/20'
-                      }`}
-                    >
-                      <div>
-                        <div className={`text-sm font-medium ${data.teamSize === opt.id ? 'text-[#FAC775]' : 'text-white'}`}>{opt.label}</div>
-                        <div className="text-xs text-white/40 mt-0.5">{opt.sub}</div>
-                      </div>
-                      <div className={`w-4 h-4 rounded-full border-2 transition-colors ${
-                        data.teamSize === opt.id ? 'border-[#BA7517] bg-[#BA7517]' : 'border-white/20'
-                      }`} />
-                    </button>
-                  ))}
+              {pix.qrCode && (
+                <div className="flex justify-center mb-5">
+                  <img src={pix.qrCode} alt="QR Code PIX" className="w-48 h-48 rounded-xl border border-white/10" />
                 </div>
-                <div className="flex gap-3 mt-6">
-                  <button onClick={back} className="btn-ghost flex-1">Voltar</button>
-                  <button onClick={next} className="btn-primary flex-1">Continuar →</button>
-                </div>
-              </motion.div>
-            )}
+              )}
 
-            {/* Step 4 — Ready */}
-            {step === 4 && (
-              <motion.div key="s4" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
-                <div className="text-5xl mb-6">🎉</div>
-                <h2 className="font-syne font-black text-3xl mb-3">Tudo pronto, {data.businessName}!</h2>
-                <p className="text-white/50 leading-relaxed mb-4">
-                  Seu sócio já conhece seu negócio em {data.city}. Está pronto para precificar, criar propostas e muito mais.
-                </p>
-                <div className="glass-card p-4 mb-8 text-sm text-white/60 space-y-2">
-                  <div className="flex gap-2"><span className="text-[#BA7517]">✓</span> Negócio: {data.businessName}</div>
-                  <div className="flex gap-2"><span className="text-[#BA7517]">✓</span> Cidade: {data.city}</div>
-                  <div className="flex gap-2"><span className="text-[#BA7517]">✓</span> Segmento personalizado</div>
+              <div className="bg-white/[0.05] border border-white/10 rounded-xl p-4 mb-4 text-left">
+                <div className="text-xs text-white/30 mb-2">Código PIX copia e cola</div>
+                <div className="text-xs text-white/60 break-all leading-relaxed font-mono">
+                  {pix.copyPaste}
                 </div>
-                <button
-                  onClick={finish}
-                  disabled={loading}
-                  className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : 'Abrir meu Sócio →'}
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </div>
+              </div>
+
+              <button
+                onClick={copyPix}
+                className={`w-full py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  copied
+                    ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                    : 'bg-[#BA7517] text-white hover:bg-[#9a6113]'
+                }`}
+              >
+                {copied ? '✓ Copiado!' : 'Copiar código PIX'}
+              </button>
+
+              <p className="text-xs text-white/30 mt-4">
+                Após o pagamento, seu plano é ativado automaticamente em até 1 minuto.
+              </p>
+
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="text-sm text-white/40 hover:text-white/70 mt-4 transition-colors"
+              >
+                Ir para o dashboard →
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
     </div>
   )
 }
