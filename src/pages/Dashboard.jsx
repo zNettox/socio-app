@@ -251,7 +251,7 @@ export default function Dashboard() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {plan === 'free' && (
-            <button onClick={() => { setProfileOpen(false); navigate('/checkout?plan=pro_mensal_promo') }} style={S.pill(true)}>
+            <button onClick={() => { navigate('/planos') }} style={S.pill(true)}>
               Fazer upgrade
             </button>
           )}
@@ -284,8 +284,8 @@ export default function Dashboard() {
       {isLimited && (
         <div style={{ background: 'rgba(186,117,23,0.08)', borderBottom: '1px solid rgba(186,117,23,0.15)', padding: '10px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: 13, color: '#FAC775' }}>Créditos gratuitos esgotados.</span>
-          <button onClick={() => { setProfileOpen(false); navigate('/checkout?plan=pro_mensal_promo') }} style={{ fontSize: 12, fontWeight: 500, background: '#BA7517', color: '#fff', padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer' }}>
-            Pro por R$19,90
+          <button onClick={() => { navigate('/planos') }} style={{ fontSize: 12, fontWeight: 500, background: '#BA7517', color: '#fff', padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer' }}>
+            Ver planos
           </button>
         </div>
       )}
@@ -596,15 +596,12 @@ export default function Dashboard() {
                         </div>
                       </div>
                       {[
-                        { name: 'Pro', price: 'R$49,90/mês', promo: '1º mês R$19,90', items: ['Propostas ilimitadas', 'Assistente personalizado', 'Controle de caixa completo'], key: 'pro_mensal_promo' },
-                        { name: 'Business', price: 'R$89,90/mês', promo: '1º mês R$49,90', items: ['Tudo do Pro', 'Até 5 usuários', 'Suporte prioritário'], key: 'biz_mensal_promo' },
+                        { name: 'Pro', price: 'R$49,90/mês', items: ['Propostas ilimitadas', 'Assistente personalizado', 'Controle de caixa completo'] },
+                        { name: 'Business', price: 'R$89,90/mês', items: ['Tudo do Pro', 'Até 5 usuários', 'Suporte prioritário'] },
                       ].map(p => (
                         <div key={p.name} style={{ padding: '16px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)', marginBottom: 10 }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                            <div>
-                              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15 }}>{p.name}</div>
-                              <div style={{ fontSize: 12, color: '#BA7517', marginTop: 2 }}>{p.promo}</div>
-                            </div>
+                            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15 }}>{p.name}</div>
                             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>{p.price}</div>
                           </div>
                           {p.items.map(item => (
@@ -613,8 +610,8 @@ export default function Dashboard() {
                               <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{item}</span>
                             </div>
                           ))}
-                          <button onClick={() => { setProfileOpen(false); navigate(`/checkout?plan=${p.key}`) }} style={{ width: '100%', marginTop: 12, padding: '9px', borderRadius: 10, background: '#BA7517', color: '#fff', border: 'none', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
-                            Assinar {p.name}
+                          <button onClick={() => { setProfileOpen(false); navigate('/planos') }} style={{ width: '100%', marginTop: 12, padding: '9px', borderRadius: 10, background: '#BA7517', color: '#fff', border: 'none', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+                            Ver planos e assinar
                           </button>
                         </div>
                       ))}
