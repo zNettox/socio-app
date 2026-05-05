@@ -243,13 +243,13 @@ export default function Landing() {
             },
             {
               name: 'Pro', price: 'R$49,90', sub: '/mês · recorrente',
-              promo: '1º mês por R$19,90 no cartão',
+              promo: null,
               items: ['Precificação com mercado real', 'Propostas ilimitadas em PDF', 'Assistente personalizado', 'Controle de caixa completo', 'Conteúdo para redes sociais'],
               cta: 'Assinar Pro', highlight: true, free: false, link: 'https://pag.ae/81LgUyNcP/button',
             },
             {
               name: 'Business', price: 'R$89,90', sub: '/mês · recorrente',
-              promo: '1º mês por R$49,90 no cartão',
+              promo: null,
               items: ['Tudo do plano Pro', 'Até 5 usuários na conta', 'Relatórios avançados de caixa', 'Suporte prioritário por WhatsApp'],
               cta: 'Assinar Business', highlight: false, free: false, link: 'https://pag.ae/81LgVm968/button',
             },
@@ -267,13 +267,9 @@ export default function Landing() {
               <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 36, color: plan.highlight ? '#BA7517' : 'rgba(255,255,255,0.55)', lineHeight: 1 }}>
                 {plan.price}
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4, marginBottom: plan.promo ? 8 : 16 }}>{plan.sub}</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4, marginBottom: 16 }}>{plan.sub}</div>
 
-              {plan.promo && (
-                <div style={{ display: 'inline-flex', fontSize: 11, padding: '4px 10px', borderRadius: 20, background: 'rgba(186,117,23,0.12)', color: '#FAC775', border: '1px solid rgba(186,117,23,0.2)', fontWeight: 500, marginBottom: 16 }}>
-                  {plan.promo}
-                </div>
-              )}
+
 
               <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 16 }} />
 
