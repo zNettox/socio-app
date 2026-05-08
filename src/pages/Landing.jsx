@@ -19,8 +19,7 @@ export default function Landing() {
   const [visibleChat, setVisibleChat] = useState(0)
   const heroRef = useRef(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
-  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '40%'])
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
+  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '25%'])
 
   const CHAT = [
     { role: 'user', text: 'Sócio, cria uma proposta comercial de R$4.500 para gestão de redes sociais?' },
@@ -35,15 +34,15 @@ export default function Landing() {
   }, [visibleChat])
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] overflow-x-hidden font-dm selection:bg-apple-blue/20">
+    <div className="bg-[#F5F5F7] text-[#1D1D1F] overflow-x-hidden font-dm selection:bg-apple-blue/20">
       {/* ── HEADER ─────────────────────────────────────────────────────── */}
       <motion.header 
         initial={{ y: -20, opacity: 0 }} 
         animate={{ y: 0, opacity: 1 }} 
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-5xl"
+        className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-5xl"
       >
-        <div className="glass-panel rounded-full px-6 py-3 flex items-center justify-between shadow-lg shadow-black/5">
+        <div className="glass-panel rounded-full px-6 py-3.5 flex items-center justify-between shadow-lg shadow-black/8 border border-white/60">
           <div className="flex items-center gap-2">
             <SocioMark size={24} />
             <span className="font-syne font-bold text-lg tracking-tight">sócio<span className="text-apple-blue">.</span></span>
@@ -60,17 +59,17 @@ export default function Landing() {
       </motion.header>
 
       {/* ── HERO ───────────────────────────────────────────────────────── */}
-      <section ref={heroRef} className="relative min-h-[100svh] flex flex-col items-center justify-center pt-32 pb-24 overflow-hidden">
+      <section ref={heroRef} className="relative min-h-[100svh] flex flex-col items-center justify-center pt-36 pb-24 overflow-hidden">
         <Orb x="10%" y="20%" size={400} color="#0066CC" />
         <Orb x="70%" y="40%" size={500} color="#5E5CE6" delay={2} />
         
-        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 w-full max-w-5xl mx-auto px-6 text-center mt-12 md:mt-20">
+        <motion.div style={{ y: heroY }} className="relative z-10 w-full max-w-5xl mx-auto px-6 text-center">
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }} 
             animate={{ scale: 1, opacity: 1 }} 
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
           >
-            <span className="inline-block py-1.5 px-4 rounded-full bg-apple-blue/10 text-apple-blue text-xs font-bold uppercase tracking-wider mb-8 shadow-sm">
+            <span className="inline-block py-1.5 px-4 rounded-full bg-apple-blue/10 text-apple-blue text-xs font-bold uppercase tracking-wider mb-8 shadow-sm border border-apple-blue/10">
               Sua inteligência artificial particular
             </span>
           </motion.div>
@@ -79,7 +78,7 @@ export default function Landing() {
             initial={{ y: 20, opacity: 0 }} 
             animate={{ y: 0, opacity: 1 }} 
             transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="font-syne font-extrabold text-5xl md:text-7xl lg:text-8xl leading-[1.05] tracking-tight mb-8"
+            className="font-syne font-extrabold text-5xl md:text-7xl lg:text-[88px] leading-[1.02] tracking-tight mb-8 text-[#1D1D1F]"
           >
             O sócio <br className="hidden md:block" />
             <span className="grad-text">inteligente</span> <br className="hidden md:block" />
@@ -90,7 +89,7 @@ export default function Landing() {
             initial={{ y: 20, opacity: 0 }} 
             animate={{ y: 0, opacity: 1 }} 
             transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="text-black/70 text-lg md:text-2xl max-w-2xl mx-auto mb-12 font-medium leading-relaxed"
+            className="text-[#3D3D3F] text-lg md:text-2xl max-w-2xl mx-auto mb-12 font-medium leading-relaxed"
           >
             Esqueça o tempo perdido criando propostas. O Sócio App gera documentos, organiza seu caixa e atende você via WhatsApp.
           </motion.p>
@@ -150,8 +149,8 @@ export default function Landing() {
       <section className="py-32 px-6 bg-white relative z-20 rounded-[40px] shadow-[0_-20px_50px_rgba(0,0,0,0.03)] mt-20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-24">
-            <h2 className="font-syne font-bold text-4xl md:text-5xl mb-6 tracking-tight">Menos burocracia.<br/>Mais tempo para <span className="grad-text">vender</span>.</h2>
-            <p className="text-black/50 text-xl max-w-2xl mx-auto">Tudo o que você precisa para parecer uma agência gigante, mesmo sendo apenas você.</p>
+            <h2 className="font-syne font-bold text-4xl md:text-5xl mb-6 tracking-tight text-[#1D1D1F]">Menos burocracia.<br/>Mais tempo para <span className="grad-text">vender</span>.</h2>
+            <p className="text-[#3D3D3F] text-xl max-w-2xl mx-auto font-medium">Tudo o que você precisa para parecer uma agência gigante, mesmo sendo apenas você.</p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
@@ -166,11 +165,11 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="card-hover bg-[#F5F5F7] border border-black/5 rounded-3xl p-8"
+                className="card-hover bg-white border border-black/5 rounded-3xl p-8 shadow-sm hover:shadow-md"
               >
-                <div className="text-4xl mb-6 bg-white w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm">{f.icon}</div>
-                <h3 className="font-syne font-bold text-xl mb-3">{f.title}</h3>
-                <p className="text-black/60 leading-relaxed text-sm">{f.desc}</p>
+                <div className="text-4xl mb-6 bg-[#F5F5F7] w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm">{f.icon}</div>
+                <h3 className="font-syne font-bold text-xl mb-3 text-[#1D1D1F]">{f.title}</h3>
+                <p className="text-[#3D3D3F] leading-relaxed font-medium">{f.desc}</p>
               </motion.div>
             ))}
           </div>

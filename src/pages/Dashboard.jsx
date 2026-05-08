@@ -321,10 +321,10 @@ export default function Dashboard() {
                   {messages.length === 0 && (
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center pt-10 md:pt-20">
                       <div className="w-20 h-20 bg-white shadow-xl shadow-black/5 border border-black/5 rounded-[24px] flex items-center justify-center mx-auto mb-6">
-                        <SocioMark size={40} />
+                        <Icon.SocioMark size={40} />
                       </div>
                       <h2 className="font-syne font-bold text-3xl mb-2 text-black tracking-tight">Olá, {displayName}!</h2>
-                      <p className="text-black/50 mb-10 text-lg">Como posso ajudar seu negócio hoje?</p>
+                      <p className="text-black/60 mb-10 text-lg">Como posso ajudar seu negócio hoje?</p>
                       <div className="grid gap-3 max-w-lg mx-auto">
                         {QUICK.map(q => (
                           <button key={q} onClick={() => sendMessage(q)} disabled={isLimited} className="bg-white hover:bg-apple-light border border-black/5 text-left text-black/70 hover:text-apple-blue font-medium text-sm px-6 py-4 rounded-2xl shadow-sm transition-all active:scale-95">
@@ -455,10 +455,10 @@ export default function Dashboard() {
               <motion.div key="support" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex-1 overflow-y-auto p-6 md:p-10 max-w-2xl mx-auto w-full">
                 <div className="mb-10 text-center">
                   <div className="w-20 h-20 bg-white shadow-xl shadow-black/5 border border-black/5 rounded-[24px] flex items-center justify-center mx-auto mb-6">
-                    <SocioMark size={40} />
+                    <Icon.SocioMark size={40} />
                   </div>
                   <h1 className="font-syne font-bold text-3xl mb-2 tracking-tight">Precisa de ajuda?</h1>
-                  <p className="text-black/50 text-sm">Nossa equipe de humanos está pronta para atender você via WhatsApp.</p>
+                  <p className="text-black/60 text-sm">Nossa equipe de humanos está pronta para atender você via WhatsApp.</p>
                 </div>
                 
                 <a href="https://wa.me/5592981417222" target="_blank" rel="noreferrer" className="block bg-white border border-black/5 rounded-[32px] p-6 shadow-sm hover:shadow-lg transition-all group relative overflow-hidden">

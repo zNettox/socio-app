@@ -19,6 +19,9 @@
     background-color: #F5F5F7;
     color: #1D1D1F;
     min-height: 100vh;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   ::-webkit-scrollbar {
@@ -41,8 +44,19 @@
     font-family: 'Syne', sans-serif;
   }
 
+  /* Strong typography defaults */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    color: #1D1D1F;
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    color: #3D3D3F;
+  }
+
   .btn-primary {
-    @apply bg-apple-blue text-white font-medium px-6 py-3 rounded-full transition-all duration-300 hover:bg-apple-dark hover:shadow-lg hover:shadow-apple-blue/20 active:scale-95;
+    @apply bg-apple-blue text-white font-semibold px-6 py-3 rounded-full transition-all duration-300 hover:bg-apple-dark hover:shadow-lg hover:shadow-apple-blue/25 active:scale-95;
   }
 
   .btn-ghost {
@@ -50,15 +64,15 @@
   }
 
   .glass-card {
-    @apply bg-surface-glass border border-white rounded-3xl backdrop-blur-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300;
+    @apply bg-white/90 border border-black/5 rounded-3xl backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.05)] transition-all duration-300;
   }
   
   .glass-panel {
-    @apply bg-white/80 border border-white/40 backdrop-blur-[40px] saturate-[1.8];
+    @apply bg-white/85 border border-black/5 backdrop-blur-[40px] saturate-[1.8];
   }
 
   .input-field {
-    @apply w-full bg-white/60 border border-black/5 rounded-2xl px-5 py-4 text-black placeholder-black/30 outline-none transition-all duration-300 focus:border-apple-blue/40 focus:bg-white focus:shadow-[0_0_0_4px_rgba(0,102,204,0.1)];
+    @apply w-full bg-white border border-black/10 rounded-2xl px-5 py-4 text-black font-medium placeholder-black/40 outline-none transition-all duration-300 focus:border-apple-blue/60 focus:bg-white focus:shadow-[0_0_0_4px_rgba(0,102,204,0.1)];
   }
 
   .grad-text {
