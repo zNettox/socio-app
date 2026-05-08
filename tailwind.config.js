@@ -8,17 +8,13 @@ export default {
         dm: ['DM Sans', 'sans-serif'],
       },
       colors: {
-        apple: {
-          blue: '#0066CC',
-          light: '#E5F0FA',
-          dark: '#004C99',
-          indigo: '#5E5CE6',
-        },
-        surface: {
-          light: '#FFFFFF',
-          glass: 'rgba(255, 255, 255, 0.75)',
-          dark: '#F5F5F7', // Apple silver background
-        }
+        'apple-blue': '#0066CC',
+        'apple-light': '#E5F0FA',
+        'apple-dark': '#004C99',
+        'apple-indigo': '#5E5CE6',
+        'surface-light': '#FFFFFF',
+        'surface-glass': 'rgba(255, 255, 255, 0.75)',
+        'surface-dark': '#F5F5F7',
       },
       animation: {
         'gradient-x': 'gradient-x 15s ease infinite',

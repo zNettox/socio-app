@@ -60,7 +60,7 @@ export default function Landing() {
       </motion.header>
 
       {/* ── HERO ───────────────────────────────────────────────────────── */}
-      <section ref={heroRef} className="relative min-h-[100svh] flex flex-col items-center justify-center pt-24 pb-12 overflow-hidden">
+      <section ref={heroRef} className="relative min-h-[100svh] flex flex-col items-center justify-center pt-32 pb-24 overflow-hidden">
         <Orb x="10%" y="20%" size={400} color="#0066CC" />
         <Orb x="70%" y="40%" size={500} color="#5E5CE6" delay={2} />
         
@@ -90,7 +90,7 @@ export default function Landing() {
             initial={{ y: 20, opacity: 0 }} 
             animate={{ y: 0, opacity: 1 }} 
             transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="text-black/50 text-lg md:text-2xl max-w-2xl mx-auto mb-12 font-light leading-relaxed"
+            className="text-black/70 text-lg md:text-2xl max-w-2xl mx-auto mb-12 font-medium leading-relaxed"
           >
             Esqueça o tempo perdido criando propostas. O Sócio App gera documentos, organiza seu caixa e atende você via WhatsApp.
           </motion.p>
@@ -113,7 +113,7 @@ export default function Landing() {
           initial={{ y: 60, opacity: 0 }} 
           animate={{ y: 0, opacity: 1 }} 
           transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-20 w-full max-w-3xl mx-auto mt-24 px-6"
+          className="relative z-20 w-full max-w-3xl mx-auto mt-16 px-6"
         >
           <div className="glass-card p-6 md:p-8">
             <div className="flex gap-2 mb-6">
