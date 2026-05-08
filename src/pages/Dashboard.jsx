@@ -76,14 +76,110 @@ const generatePDF = async (content, userData) => {
   return doc
 }
 
+// ─── Markdown Renderer ────────────────────────────────────────────────────
+function renderMarkdown(text) {
+  if (!text) return null
+  const lines = text.split('\n')
+  const elements = []
+  let key = 0
+  let inTable = false
+  let tableRows = []
+
+  const flushTable = () => {
+    if (tableRows.length === 0) return
+    const [header, , ...body] = tableRows
+    const headers = header.split('|').map(s => s.trim()).filter(Boolean)
+    elements.push(
+      <div key={key++} className="overflow-x-auto my-3">
+        <table className="w-full text-sm border-collapse">
+          <thead><tr>{headers.map((h,i) => <th key={i} className="text-left px-3 py-2 bg-black/5 font-bold border-b border-black/10">{h}</th>)}</tr></thead>
+          <tbody>{body.map((row, ri) => {
+            const cells = row.split('|').map(s => s.trim()).filter(Boolean)
+            return <tr key={ri} className="border-b border-black/5">{cells.map((c,ci) => <td key={ci} className="px-3 py-2">{c}</td>)}</tr>
+          })}</tbody>
+        </table>
+      </div>
+    )
+    tableRows = []
+    inTable = false
+  }
+
+  lines.forEach((line, i) => {
+    // Table rows
+    if (line.trim().startsWith('|')) {
+      inTable = true
+      tableRows.push(line)
+      return
+    }
+    if (inTable) flushTable()
+
+    // Horizontal rule
+    if (/^---+$/.test(line.trim())) {
+      elements.push(<hr key={key++} className="my-3 border-black/10" />)
+      return
+    }
+    // Empty line
+    if (!line.trim()) {
+      elements.push(<div key={key++} className="h-2" />)
+      return
+    }
+
+    // Parse inline markdown (bold, italic, code, links)
+    const parseInline = (str) => {
+      const parts = []
+      let remaining = str
+      let pk = 0
+      while (remaining) {
+        const boldMatch = remaining.match(/\*\*(.+?)\*\*/)
+        const codeMatch = remaining.match(/`(.+?)`/)
+        const first = [boldMatch, codeMatch]
+          .filter(Boolean)
+          .sort((a, b) => a.index - b.index)[0]
+        if (!first) { parts.push(<span key={pk++}>{remaining}</span>); break }
+        if (first.index > 0) parts.push(<span key={pk++}>{remaining.slice(0, first.index)}</span>)
+        if (first === boldMatch) parts.push(<strong key={pk++} className="font-bold text-[#1D1D1F]">{first[1]}</strong>)
+        else parts.push(<code key={pk++} className="bg-black/8 px-1.5 py-0.5 rounded text-sm font-mono">{first[1]}</code>)
+        remaining = remaining.slice(first.index + first[0].length)
+      }
+      return parts
+    }
+
+    // Headings
+    if (line.startsWith('### ')) {
+      elements.push(<h3 key={key++} className="font-bold text-base mt-4 mb-1 text-[#1D1D1F]">{parseInline(line.slice(4))}</h3>)
+    } else if (line.startsWith('## ')) {
+      elements.push(<h2 key={key++} className="font-bold text-lg mt-4 mb-2 text-[#1D1D1F]">{parseInline(line.slice(3))}</h2>)
+    } else if (line.startsWith('# ')) {
+      elements.push(<h1 key={key++} className="font-bold text-xl mt-4 mb-2 text-[#1D1D1F]">{parseInline(line.slice(2))}</h1>)
+    }
+    // Bullet lists
+    else if (/^[\-\*] /.test(line)) {
+      elements.push(<div key={key++} className="flex gap-2 my-0.5"><span className="mt-1 text-[#0066CC] flex-shrink-0">•</span><span>{parseInline(line.slice(2))}</span></div>)
+    }
+    // Numbered lists
+    else if (/^\d+\. /.test(line)) {
+      const num = line.match(/^(\d+)\.\s/)[1]
+      elements.push(<div key={key++} className="flex gap-2 my-0.5"><span className="text-[#0066CC] font-bold flex-shrink-0 min-w-[1.2rem]">{num}.</span><span>{parseInline(line.replace(/^\d+\.\s/, ''))}</span></div>)
+    }
+    // Normal paragraph
+    else {
+      elements.push(<p key={key++} className="my-0.5 leading-relaxed">{parseInline(line)}</p>)
+    }
+  })
+
+  if (inTable) flushTable()
+  return elements
+}
+
 // ─── Constants ─────────────────────────────────────────────────────────────
 const PLAN_LIMITS = { free: 10, pro: Infinity, business: Infinity }
 const PLAN_LABELS = { free: 'Grátis', pro: 'Pro', business: 'Business' }
+const PLAN_FEATURES = { proposals: ['pro', 'business'], cashflow: ['pro', 'business'] }
 const TABS = [
   { id: 'chat', label: 'Assistente', Icon: Icon.Chat },
-  { id: 'proposals', label: 'Propostas', Icon: Icon.File },
-  { id: 'cashflow', label: 'Caixa', Icon: Icon.Cash },
-  { id: 'services', label: 'Serviços criativos', Icon: Icon.Brush },
+  { id: 'proposals', label: 'Propostas', Icon: Icon.File, proOnly: true },
+  { id: 'cashflow', label: 'Caixa', Icon: Icon.Cash, proOnly: true },
+  { id: 'services', label: 'Serviços', Icon: Icon.Brush },
   { id: 'support', label: 'Suporte', Icon: Icon.Support },
 ]
 
@@ -283,6 +379,7 @@ export default function Dashboard() {
                 {activeTab === t.id && <motion.div layoutId="sidebar-active" className="absolute inset-0 bg-apple-blue/10 rounded-xl" />}
                 <span className="relative z-10"><t.Icon /></span>
                 <span className="relative z-10">{t.label}</span>
+                {t.proOnly && plan === 'free' && <span className="relative z-10 ml-auto text-[9px] font-bold bg-apple-blue/10 text-apple-blue px-1.5 py-0.5 rounded-full">PRO</span>}
               </button>
             ))}
 
@@ -341,8 +438,8 @@ export default function Dashboard() {
                       </div>
                       <div className="max-w-[85%] md:max-w-[75%]">
                         <div className={`text-[11px] font-medium text-black/40 mb-1 px-1 ${msg.role === 'user' ? 'text-right' : ''}`}>{msg.role === 'assistant' ? 'Sócio' : 'Você'}</div>
-                        <div className={`p-4 text-[14px] leading-relaxed shadow-sm ${msg.role === 'assistant' ? 'bg-white border border-black/5 text-black rounded-[20px_20px_20px_4px]' : 'bg-apple-blue text-white rounded-[20px_20px_4px_20px]'}`} style={{ whiteSpace: 'pre-wrap' }}>
-                          {msg.content}
+                        <div className={`p-4 text-[14px] leading-relaxed shadow-sm ${msg.role === 'assistant' ? 'bg-white border border-black/5 text-black rounded-[20px_20px_20px_4px]' : 'bg-apple-blue text-white rounded-[20px_20px_4px_20px]'}`}>
+                          {msg.role === 'assistant' ? renderMarkdown(msg.content) : msg.content}
                         </div>
                       </div>
                     </motion.div>
@@ -372,6 +469,14 @@ export default function Dashboard() {
             {/* PROPOSALS */}
             {activeTab === 'proposals' && (
               <motion.div key="proposals" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex-1 overflow-y-auto p-6 md:p-10 max-w-5xl mx-auto w-full">
+                {!PLAN_FEATURES.proposals.includes(plan) ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center py-20">
+                    <div className="w-20 h-20 bg-apple-light rounded-3xl flex items-center justify-center text-apple-blue mb-6 text-4xl">🔒</div>
+                    <h2 className="font-syne font-bold text-2xl mb-3">Recurso exclusivo Pro</h2>
+                    <p className="text-black/50 mb-8 max-w-sm">Geração e armazenamento de propostas profissionais está disponível nos planos Pro e Business.</p>
+                    <button onClick={() => navigate('/planos')} className="btn-primary px-8 py-3 shadow-lg shadow-apple-blue/20">Ver planos →</button>
+                  </div>
+                ) : (
                 <div className="mb-10">
                   <h1 className="font-syne font-bold text-3xl mb-2 tracking-tight">Suas Propostas</h1>
                   <p className="text-black/50 text-sm">Documentos profissionais gerados pelo seu assistente. Prontos para enviar ao cliente.</p>
@@ -407,7 +512,16 @@ export default function Dashboard() {
             {/* CASHFLOW */}
             {activeTab === 'cashflow' && (
               <motion.div key="cashflow" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex-1 flex flex-col overflow-hidden max-w-6xl mx-auto w-full">
-                <Cashflow />
+                {!PLAN_FEATURES.cashflow.includes(plan) ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center py-20 px-6">
+                    <div className="w-20 h-20 bg-apple-light rounded-3xl flex items-center justify-center mb-6 text-4xl">🔒</div>
+                    <h2 className="font-syne font-bold text-2xl mb-3">Recurso exclusivo Pro</h2>
+                    <p className="text-black/50 mb-8 max-w-sm">O controle de caixa completo está disponível nos planos Pro e Business.</p>
+                    <button onClick={() => navigate('/planos')} className="btn-primary px-8 py-3 shadow-lg shadow-apple-blue/20">Ver planos →</button>
+                  </div>
+                ) : (
+                  <Cashflow />
+                )}
               </motion.div>
             )}
 

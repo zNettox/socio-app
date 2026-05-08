@@ -197,7 +197,7 @@ export default function Landing() {
             {[
               { title: 'Propostas em 30s', desc: 'Diga o que vai fazer e o assistente gera um PDF lindo pronto para o cliente.', icon: '📄' },
               { title: 'Controle Financeiro', desc: 'Veja exatamente quanto entra e sai com uma interface simples e clara.', icon: '💸' },
-              { title: 'IA via WhatsApp', desc: 'Converse com seu Sócio sem abrir o app. Mandou áudio, ele cria a proposta.', icon: '💬' }
+              { title: 'Precificação inteligente', desc: 'Saiba exatamente quanto cobrar pelo seu serviço com base no mercado da sua cidade.', icon: '🎯' }
             ].map((f, i) => (
               <motion.div
                 key={f.title}
