@@ -300,7 +300,7 @@ export default function Dashboard() {
         <AnimatePresence>
           {sidebarOpen && (
             <motion.aside initial={{ x: -260 }} animate={{ x: 0 }} exit={{ x: -260 }} transition={{ duration: 0.2 }}
-              style={{ ...S.sidebar, position: 'fixed', top: 0, left: 0, zIndex: 25, height: '100vh', paddingTop: 112 }}>
+              style={{ ...S.sidebar, position: 'fixed', top: 0, left: 0, zIndex: 25, height: '100vh', paddingTop: 112 }} className="glass-panel border-r border-white/10">
               <div style={{ padding: '0 12px 12px' }}>
                 <button onClick={newConv} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 10, background: 'rgba(186,117,23,0.08)', border: '1px solid rgba(186,117,23,0.15)', color: '#FAC775', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
                   <Icon.Plus /> Nova conversa
@@ -341,9 +341,7 @@ export default function Dashboard() {
                       <div style={{ display: 'grid', gap: 10, maxWidth: 420, margin: '0 auto' }}>
                         {QUICK.map(q => (
                           <button key={q} onClick={() => sendMessage(q)} disabled={isLimited}
-                            style={{ padding: '12px 16px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)', color: 'rgba(255,255,255,0.5)', fontSize: 13, cursor: isLimited ? 'not-allowed' : 'pointer', textAlign: 'left', transition: 'all 0.2s' }}
-                            onMouseEnter={e => { if (!isLimited) { e.currentTarget.style.borderColor = 'rgba(186,117,23,0.3)'; e.currentTarget.style.color = 'rgba(255,255,255,0.8)' } }}
-                            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.color = 'rgba(255,255,255,0.5)' }}>
+                            className="glass-card hover:bg-white/5 transition-all text-left text-white/60 hover:text-white text-[13px] px-4 py-3 rounded-xl border border-white/5 hover:border-white/20">
                             {q}
                           </button>
                         ))}
@@ -399,17 +397,13 @@ export default function Dashboard() {
                   </div>
                 ) : proposals.map((p, i) => (
                   <motion.div key={p.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)', marginBottom: 10, transition: 'background 0.2s' }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
-                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}>
+                    className="glass-card flex items-center gap-4 p-4 rounded-2xl group transition-all">
                     <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(186,117,23,0.08)', border: '1px solid rgba(186,117,23,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#BA7517' }}><Icon.File /></div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 14, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</div>
                       <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{p.createdAt?.toDate?.()?.toLocaleDateString('pt-BR') || 'Hoje'}</div>
                     </div>
-                    <button onClick={() => downloadPDF(p)} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 16px', borderRadius: 10, background: 'rgba(186,117,23,0.08)', border: '1px solid rgba(186,117,23,0.15)', color: '#FAC775', fontSize: 12, fontWeight: 500, cursor: 'pointer', flexShrink: 0, transition: 'background 0.2s' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(186,117,23,0.16)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'rgba(186,117,23,0.08)'}>
+                    <button onClick={() => downloadPDF(p)} className="glow-btn bg-gradient-to-r from-[#BA7517] to-[#854F0B] text-white flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium cursor-pointer flex-shrink-0 transition-all shadow-lg shadow-[#BA7517]/20">
                       <Icon.Download /> Baixar PDF
                     </button>
                   </motion.div>
@@ -439,9 +433,7 @@ export default function Dashboard() {
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {s.items.map(item => (
-                        <div key={item.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)', transition: 'background 0.2s', gap: 16 }}
-                          onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
-                          onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}>
+                        <div key={item.name} className="glass-card flex items-center justify-between p-4 rounded-2xl group transition-all gap-4 mb-2">
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.8)' }}>{item.name}</div>
                             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>{item.desc}</div>
@@ -485,9 +477,7 @@ export default function Dashboard() {
                   </div>
                   <div style={{ padding: '20px 24px' }}>
                     <a href="https://wa.me/5592981417222" target="_blank" rel="noreferrer"
-                      style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px', borderRadius: 14, border: '1px solid rgba(74,222,128,0.15)', background: 'rgba(74,222,128,0.04)', textDecoration: 'none', transition: 'background 0.2s', marginBottom: 16 }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(74,222,128,0.08)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'rgba(74,222,128,0.04)'}>
+                      className="glass-card flex items-center gap-4 p-4 rounded-2xl mb-4 text-decoration-none group transition-all">
                       <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(74,222,128,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <Icon.Whatsapp />
                       </div>
@@ -518,7 +508,7 @@ export default function Dashboard() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setProfileOpen(false)}
               style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 40, backdropFilter: 'blur(4px)' }} />
             <motion.div initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 60 }} transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              style={{ position: 'fixed', bottom: 0, left: 0, right: 0, top: 'auto', transform: 'none', width: '100%', maxWidth: '100%', background: '#0e0e0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px 20px 0 0', zIndex: 50, overflow: 'hidden', boxShadow: '0 -20px 60px rgba(0,0,0,0.7)', maxHeight: '90vh', overflowY: 'auto' }}>
+              className="glass-card border border-white/5 rounded-[24px_24px_0_0] overflow-hidden shadow-[0_-20px_60px_rgba(0,0,0,0.8)]">
 
               {/* Profile header */}
               <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 0' }}>

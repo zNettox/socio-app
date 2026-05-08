@@ -48,10 +48,68 @@
   }
 
   .glass-card {
-    @apply bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm;
+    @apply bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl shadow-xl transition-all duration-300;
+  }
+  
+  .glass-panel {
+    @apply bg-[#060606]/60 border border-white/5 backdrop-blur-[24px];
   }
 
   .input-field {
-    @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 outline-none transition-all duration-200 focus:border-[#BA7517]/50;
+    @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 outline-none transition-all duration-300 focus:border-[#BA7517]/70 focus:bg-white/10 focus:shadow-[0_0_15px_rgba(186,117,23,0.15)];
+  }
+
+  .grad-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-[#D4A373] to-[#BA7517];
+  }
+
+  .grad-border {
+    position: relative;
+    background: transparent;
+  }
+  .grad-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(186,117,23,0.6), rgba(212,163,115,0.1), rgba(186,117,23,0.4));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .glow-btn {
+    @apply relative overflow-hidden transition-all duration-300;
+  }
+  .glow-btn:hover {
+    @apply shadow-[0_0_30px_4px_rgba(186,117,23,0.35)];
+    transform: translateY(-2px);
+  }
+  .glow-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
+    transform: skewX(-20deg);
+    animation: shine 3s infinite;
+  }
+  
+  @keyframes shine {
+    0% { left: -100%; }
+    20% { left: 200%; }
+    100% { left: 200%; }
+  }
+
+  .card-hover {
+    @apply transition-all duration-300;
+  }
+  .card-hover:hover {
+    @apply transform -translate-y-1 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)];
+    border-color: rgba(186, 117, 23, 0.3) !important;
   }
 }

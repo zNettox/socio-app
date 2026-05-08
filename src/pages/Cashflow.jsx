@@ -261,7 +261,7 @@ export default function Cashflow() {
         </div>
 
         <button onClick={saveTransaction} disabled={loading || !form.description || !form.amount || !form.category}
-          className="btn-primary w-full disabled:opacity-40 mt-2">
+          className="glow-btn bg-gradient-to-r from-[#BA7517] to-[#854F0B] text-white font-medium w-full rounded-xl disabled:opacity-40 mt-4 py-3.5 shadow-lg shadow-[#BA7517]/20">
           {loading ? 'Salvando...' : editingTx ? 'Salvar alterações' : `Registrar ${form.type === 'entrada' ? 'entrada' : 'saída'}`}
         </button>
       </div>
@@ -280,7 +280,7 @@ export default function Cashflow() {
         <div className="space-y-2">
           {filtered.map(tx => (
             <motion.div key={tx.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="flex items-center gap-3 p-4 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.04] transition-colors group">
+              className="flex items-center gap-3 p-4 rounded-xl glass-card hover:bg-white/[0.04] transition-colors group">
               <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
                 tx.type === 'entrada' ? 'bg-green-500/15' : 'bg-red-400/15'
               }`}>
@@ -323,14 +323,14 @@ export default function Cashflow() {
         <textarea className="input-field flex-1 resize-none" rows={2} placeholder="Escreva uma anotação... ex: falta pagar a energia essa semana"
           value={noteText} onChange={e => setNoteText(e.target.value)} />
         <button onClick={saveNote} disabled={!noteText.trim()}
-          className="bg-[#BA7517] text-white px-4 rounded-xl disabled:opacity-40 hover:bg-[#9a6113] transition-colors self-stretch">
+          className="glow-btn bg-gradient-to-r from-[#BA7517] to-[#854F0B] text-white px-5 rounded-xl disabled:opacity-40 transition-colors self-stretch shadow-lg shadow-[#BA7517]/20">
           +
         </button>
       </div>
       <div className="space-y-2">
         {notes.map(n => (
           <motion.div key={n.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="flex items-start gap-3 p-4 rounded-xl border border-white/[0.07] bg-white/[0.02] group">
+            className="flex items-start gap-3 p-4 rounded-xl glass-card group">
             <div className="w-2 h-2 rounded-full bg-[#BA7517] mt-1.5 flex-shrink-0" />
             <p className="flex-1 text-sm text-white/70 leading-relaxed">{n.text}</p>
             <div className="flex flex-col items-end gap-1">
@@ -382,7 +382,7 @@ export default function Cashflow() {
       </div>
 
       {/* Bar chart */}
-      <div className="border border-white/[0.07] rounded-xl p-5 bg-white/[0.02]">
+      <div className="glass-card p-6 rounded-2xl">
         <div className="flex items-center justify-between mb-4">
           <div className="text-sm font-medium text-white/70">Últimos 6 meses</div>
           <div className="flex items-center gap-3 text-xs text-white/40">
@@ -395,7 +395,7 @@ export default function Cashflow() {
 
       {/* Category donut */}
       {catSegments.length > 0 && (
-        <div className="border border-white/[0.07] rounded-xl p-5 bg-white/[0.02]">
+        <div className="glass-card p-6 rounded-2xl">
           <div className="text-sm font-medium text-white/70 mb-4">Saídas por categoria</div>
           <div className="flex items-center gap-6">
             <DonutChart segments={catSegments} size={100} />
@@ -415,7 +415,7 @@ export default function Cashflow() {
       )}
 
       {/* Recent transactions */}
-      <div className="border border-white/[0.07] rounded-xl p-5 bg-white/[0.02]">
+      <div className="glass-card p-6 rounded-2xl">
         <div className="flex items-center justify-between mb-4">
           <div className="text-sm font-medium text-white/70">Últimas transações</div>
           <button onClick={() => setView('list')} className="text-xs text-[#BA7517] hover:text-[#FAC775] transition-colors">
@@ -461,7 +461,7 @@ export default function Cashflow() {
           <span className="text-xs text-red-400 font-medium">Saída</span>
         </button>
         <button onClick={() => setView('notes')}
-          className="flex flex-col items-center gap-2 p-4 rounded-xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.05] transition-colors">
+          className="flex flex-col items-center gap-2 p-5 rounded-2xl glass-card hover:bg-white/[0.05] transition-colors">
           <span className="text-xl">📝</span>
           <span className="text-xs text-white/50 font-medium">Notas</span>
         </button>

@@ -206,24 +206,42 @@ export default function Landing() {
         <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <div style={{ fontSize: 11, color: '#BA7517', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 14, fontWeight: 500 }}>Funcionalidades</div>
           <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(30px, 4vw, 48px)', lineHeight: 1.1, letterSpacing: '-1.5px', marginBottom: 56 }}>
-            Tudo em um lugar.<br /><span style={{ color: 'rgba(255,255,255,0.2)' }}>Sem complicação.</span>
+            Tudo em um lugar.<br /><span className="text-white/20">Sem complicação.</span>
           </h2>
         </motion.div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 2, background: 'rgba(255,255,255,0.04)' }}>
+        
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+          }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        >
           {FEATURES.map((f, i) => (
-            <motion.div key={f.title} className="card-hover" initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }}
-              style={{ background: '#060606', padding: '32px 28px', cursor: 'default', transition: 'background 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.background = '#0d0d0d'}
-              onMouseLeave={e => e.currentTarget.style.background = '#060606'}>
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#BA7517', marginBottom: 20 }} />
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, marginBottom: 10 }}>{f.title}</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7 }}>{f.desc}</div>
+            <motion.div 
+              key={f.title} 
+              variants={{
+                hidden: { opacity: 0, y: 30, scale: 0.95 },
+                visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }
+              }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              className="glass-card p-8 group overflow-hidden relative cursor-default"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-[#BA7517]/0 to-[#BA7517]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="w-8 h-8 rounded-full bg-[#BA7517]/10 flex items-center justify-center mb-6 border border-[#BA7517]/20 group-hover:border-[#BA7517]/50 transition-colors">
+                 <div className="w-2 h-2 rounded-full bg-[#BA7517] group-hover:scale-150 transition-transform duration-300" />
+              </div>
+              <div className="font-syne font-bold text-lg mb-3 text-white/90 group-hover:text-[#FAC775] transition-colors">{f.title}</div>
+              <div className="text-sm text-white/40 leading-relaxed group-hover:text-white/60 transition-colors">{f.desc}</div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
-      {/* PRICING — ONLY MONTHLY */}
+      {/* PRICING */}
       <section style={{ maxWidth: 1000, margin: '0 auto', padding: '80px 24px' }}>
         <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
           <div style={{ fontSize: 11, color: '#BA7517', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 14, fontWeight: 500 }}>Planos</div>
@@ -233,67 +251,88 @@ export default function Landing() {
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)', marginBottom: 48 }}>Cancele quando quiser. Sem multa, sem burocracia.</p>
         </motion.div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
+        <motion.div 
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={{
+            hidden: { opacity: 0 },
+            visible: { opacity: 1, transition: { staggerChildren: 0.15 } }
+          }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        >
           {[
             {
               name: 'Grátis', price: 'R$0', sub: 'Para conhecer o Sócio',
-              promo: null,
               items: ['Precificação básica', '3 propostas por mês', 'Assistente limitado (10 msgs)'],
               cta: 'Criar conta grátis', highlight: false, free: true,
             },
             {
               name: 'Pro', price: 'R$49,90', sub: '/mês · recorrente',
-              promo: null,
               items: ['Precificação com mercado real', 'Propostas ilimitadas em PDF', 'Assistente personalizado', 'Controle de caixa completo', 'Conteúdo para redes sociais'],
               cta: 'Assinar Pro', highlight: true, free: false, link: 'https://pag.ae/81LgUyNcP/button',
             },
             {
               name: 'Business', price: 'R$89,90', sub: '/mês · recorrente',
-              promo: null,
               items: ['Tudo do plano Pro', 'Até 5 usuários na conta', 'Relatórios avançados de caixa', 'Suporte prioritário por WhatsApp'],
               cta: 'Assinar Business', highlight: false, free: false, link: 'https://pag.ae/81LgVm968/button',
             },
           ].map((plan, pi) => (
-            <motion.div key={plan.name} className={plan.highlight ? 'grad-border' : ''}
-              initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: pi * 0.1 }}
-              style={{ borderRadius: 20, background: plan.highlight ? 'rgba(186,117,23,0.06)' : 'rgba(255,255,255,0.02)', border: plan.highlight ? 'none' : '1px solid rgba(255,255,255,0.06)', padding: 28, position: 'relative', overflow: 'hidden' }}>
-
+            <motion.div 
+              key={plan.name}
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
+              }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              className={`relative rounded-3xl p-8 flex flex-col transition-all duration-300 ${
+                plan.highlight 
+                  ? 'bg-gradient-to-b from-[#BA7517]/15 to-[#060606] border border-[#BA7517]/40 shadow-[0_0_40px_rgba(186,117,23,0.15)]' 
+                  : 'glass-card border-white/10 hover:border-white/20'
+              }`}
+            >
               {plan.highlight && (
-                <div style={{ position: 'absolute', top: 18, right: 18, fontSize: 10, fontWeight: 600, padding: '4px 10px', borderRadius: 20, background: '#BA7517', color: '#fff' }}>Mais popular</div>
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#D4A373] to-[#BA7517] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
+                  Mais popular
+                </div>
               )}
 
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 17, marginBottom: 6 }}>{plan.name}</div>
-
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 36, color: plan.highlight ? '#BA7517' : 'rgba(255,255,255,0.55)', lineHeight: 1 }}>
-                {plan.price}
+              <div className="font-syne font-bold text-lg text-white mb-2">{plan.name}</div>
+              <div className="flex items-baseline gap-2 mb-6">
+                <span className={`font-syne font-extrabold text-4xl ${plan.highlight ? 'text-[#BA7517]' : 'text-white/70'}`}>
+                  {plan.price}
+                </span>
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 4, marginBottom: 16 }}>{plan.sub}</div>
+              <div className="text-white/30 text-sm mb-6">{plan.sub}</div>
 
+              <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent w-full mb-6" />
 
-
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', marginBottom: 16 }} />
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+              <div className="flex-1 flex flex-col gap-4 mb-8">
                 {plan.items.map(item => (
-                  <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                    <CheckIcon />
-                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{item}</span>
+                  <div key={item} className="flex items-start gap-3">
+                    <div className="mt-1"><CheckIcon /></div>
+                    <span className="text-white/50 text-sm">{item}</span>
                   </div>
                 ))}
               </div>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => plan.free ? navigate('/login') : window.open(plan.link, '_blank')}
-                style={{ width: '100%', padding: '12px 0', borderRadius: 12, fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s', border: 'none', background: plan.highlight ? '#BA7517' : 'rgba(255,255,255,0.06)', color: plan.highlight ? '#fff' : 'rgba(255,255,255,0.5)' }}
-                onMouseEnter={e => { e.currentTarget.style.background = plan.highlight ? '#9a6113' : 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#fff' }}
-                onMouseLeave={e => { e.currentTarget.style.background = plan.highlight ? '#BA7517' : 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = plan.highlight ? '#fff' : 'rgba(255,255,255,0.5)' }}>
+                className={`w-full py-3.5 rounded-xl font-dm font-medium text-sm transition-all duration-300 ${
+                  plan.highlight 
+                    ? 'bg-gradient-to-r from-[#BA7517] to-[#854F0B] text-white shadow-lg shadow-[#BA7517]/20 hover:shadow-[#BA7517]/40' 
+                    : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white border border-white/10'
+                }`}
+              >
                 {plan.cta}
-              </button>
+              </motion.button>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, marginTop: 28 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20, marginTop: 40, justifyContent: 'center' }}>
           {[['Pagamento via PagBank', '100% seguro'], ['Cancele quando quiser', 'Sem multa'], ['Sem contrato', 'Sem fidelidade']].map(([t, s]) => (
             <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <CheckIcon />
@@ -304,21 +343,41 @@ export default function Landing() {
       </section>
 
       {/* CTA */}
-      <section style={{ padding: '0 24px 80px' }}>
-        <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-          className="grad-border" style={{ maxWidth: 1000, margin: '0 auto', borderRadius: 24, background: 'rgba(186,117,23,0.04)', padding: '72px 32px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, rgba(186,117,23,0.08) 0%, transparent 60%)', pointerEvents: 'none' }} />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(28px, 4vw, 48px)', letterSpacing: '-1.5px', marginBottom: 14 }}>
-              Comece hoje.<br /><span style={{ color: '#BA7517' }}>Zero risco.</span>
+      <section style={{ padding: '40px 24px 100px' }}>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }} 
+          whileInView={{ opacity: 1, scale: 1 }} 
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="grad-border relative max-w-4xl mx-auto rounded-3xl p-12 md:p-16 text-center overflow-hidden bg-[#0a0a0a]"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-[#BA7517]/10 to-transparent pointer-events-none" />
+          <motion.div 
+            animate={{ 
+              background: [
+                'radial-gradient(circle at 20% 50%, rgba(186,117,23,0.15) 0%, transparent 60%)',
+                'radial-gradient(circle at 80% 50%, rgba(186,117,23,0.15) 0%, transparent 60%)',
+                'radial-gradient(circle at 20% 50%, rgba(186,117,23,0.15) 0%, transparent 60%)'
+              ] 
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+            className="absolute inset-0 pointer-events-none"
+          />
+          <div className="relative z-10">
+            <h2 className="font-syne font-bold text-3xl md:text-5xl text-white mb-4">
+              Pronto para ter seu <span className="text-[#BA7517]">sócio ideal</span>?
             </h2>
-            <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.4)', marginBottom: 32, maxWidth: 380, margin: '0 auto 32px' }}>
-              Crie sua conta grátis em menos de 1 minuto. Sem cartão de crédito.
+            <p className="text-white/40 text-base md:text-lg mb-8 max-w-lg mx-auto">
+              Junte-se a milhares de empreendedores que estão profissionalizando seus negócios hoje mesmo.
             </p>
-            <button onClick={() => navigate('/login')} className="glow-btn"
-              style={{ fontSize: 14, fontWeight: 500, background: '#BA7517', color: '#fff', padding: '14px 36px', borderRadius: 12, border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}>
-              Criar minha conta grátis →
-            </button>
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/login')} 
+              className="glow-btn bg-[#BA7517] text-white font-dm font-medium px-8 py-4 rounded-xl text-base"
+            >
+              Começar grátis agora →
+            </motion.button>
           </div>
         </motion.div>
       </section>
