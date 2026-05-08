@@ -49,7 +49,8 @@ export default function Checkout() {
   const [copied, setCopied] = useState(false)
   const [timeLeft, setTimeLeft] = useState(3600)
   const [userData, setUserData] = useState(null)
-  const sdkLoaded = useRef(false)
+  const [sdkReady, setSdkReady] = useState(false)
+  const sdkInjected = useRef(false)
 
   useEffect(() => {
     const user = auth.currentUser
@@ -57,13 +58,26 @@ export default function Checkout() {
     getDoc(doc(db, 'users', user.uid)).then(snap => {
       if (snap.exists()) setUserData({ ...snap.data(), uid: user.uid, email: user.email })
     })
-    fetch('/.netlify/functions/get_pagbank_pubkey').then(r => r.json()).then(d => { if (d.publicKey) window._pagbankKey = d.publicKey })
-    if (!sdkLoaded.current) {
+
+    // Busca chave pública
+    fetch('/.netlify/functions/get_pagbank_pubkey')
+      .then(r => r.json())
+      .then(d => { if (d.publicKey) window._pagbankKey = d.publicKey })
+      .catch(() => {})
+
+    // Carrega SDK com onload
+    if (window.PagSeguro) {
+      setSdkReady(true)
+      return
+    }
+    if (!sdkInjected.current) {
+      sdkInjected.current = true
       const s = document.createElement('script')
       s.src = 'https://assets.pagseguro.com.br/checkout-sdk/js/pagSeguro.min.js'
       s.async = true
+      s.onload = () => setSdkReady(true)
+      s.onerror = () => console.error('Falha ao carregar SDK PagBank')
       document.body.appendChild(s)
-      sdkLoaded.current = true
     }
   }, [])
 
@@ -86,7 +100,10 @@ export default function Checkout() {
 
   const canPay = () => {
     if (cpf.replace(/\D/g,'').length !== 11) return false
-    if (method === 'card') return cardNumber.replace(/\s/g,'').length === 16 && cardName.length > 2 && cardExpiry.length === 5 && cardCvv.length >= 3
+    if (method === 'card') {
+      if (!sdkReady || !window._pagbankKey) return false
+      return cardNumber.replace(/\s/g,'').length === 16 && cardName.length > 2 && cardExpiry.length === 5 && cardCvv.length >= 3
+    }
     return true
   }
 
@@ -104,14 +121,24 @@ export default function Checkout() {
         paymentMethod: method === 'pix' ? 'PIX' : 'CREDIT_CARD',
       }
       if (method === 'card') {
-        if (!window.PagSeguro || !window._pagbankKey) throw new Error('SDK de pagamento não carregado. Aguarde e tente novamente.')
         const [expM, expY] = cardExpiry.split('/')
-        const enc = await window.PagSeguro.encryptCard({ publicKey: window._pagbankKey, holder: cardName, number: cardNumber.replace(/\s/g,''), expMonth: expM, expYear: '20'+expY, securityCode: cardCvv })
+        const enc = await window.PagSeguro.encryptCard({
+          publicKey: window._pagbankKey,
+          holder: cardName,
+          number: cardNumber.replace(/\s/g,''),
+          expMonth: expM,
+          expYear: '20' + expY,
+          securityCode: cardCvv,
+        })
         if (enc.hasErrors) throw new Error('Dados do cartão inválidos')
         body.cardEncrypted = enc.encryptedCard
         body.cardHolder = cardName
       }
-      const res = await fetch('/.netlify/functions/create-pagbank-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const res = await fetch('/.netlify/functions/create-pagbank-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao processar pagamento')
       if (data.type === 'pix') { setPixData(data); setStep('pix') } else { setStep('success') }
@@ -244,6 +271,12 @@ export default function Checkout() {
                       <input style={S.input} placeholder="000" value={cardCvv} onChange={e => setCardCvv(e.target.value.replace(/\D/g,'').slice(0,4))} maxLength={4} />
                     </div>
                   </div>
+                  {/* SDK loading hint */}
+                  {!sdkReady && (
+                    <p style={{ fontSize: 11, color: 'rgba(0,0,0,0.3)', margin: '4px 0 8px', textAlign: 'center' }}>
+                      Carregando módulo de pagamento…
+                    </p>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

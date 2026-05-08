@@ -31,7 +31,7 @@ export const handler = async (event) => {
       quantity: 1,
       unit_amount: planData.amount,
     }],
-    notification_urls: [process.env.URL + '/.netlify/functions/pagbank-webhook'],
+    notification_urls: ['https://usesocio.netlify.app/.netlify/functions/pagbank-webhook'],
     ...(isPix ? {
       qr_codes: [{
         amount: { value: planData.amount },
