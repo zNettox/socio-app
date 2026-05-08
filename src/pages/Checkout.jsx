@@ -9,7 +9,26 @@ const PLANS = {
   business: { name: 'Sócio Business', price: 'R$89,90', amount: 8990 },
 }
 
-// public key buscada via funcao
+const S = {
+  page:    { minHeight: '100vh', background: '#F5F5F7', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', fontFamily: "'DM Sans', sans-serif" },
+  wrap:    { width: '100%', maxWidth: 400 },
+  card:    { background: '#fff', borderRadius: 20, border: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 1px 4px rgba(0,0,0,0.06)', marginBottom: 10 },
+  header:  { padding: '18px 20px', borderBottom: '1px solid rgba(0,0,0,0.06)' },
+  body:    { padding: '20px' },
+  label:   { fontSize: 12, color: 'rgba(0,0,0,0.4)', display: 'block', marginBottom: 6 },
+  input:   { width: '100%', padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(0,0,0,0.1)', background: '#F5F5F7', color: '#1D1D1F', fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: "'DM Sans', sans-serif", transition: 'border-color 0.2s' },
+  tabActive:   { flex: 1, padding: '12px 10px', borderRadius: 12, border: '1.5px solid #0066CC', background: 'rgba(0,102,204,0.06)', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' },
+  tabInactive: { flex: 1, padding: '12px 10px', borderRadius: 12, border: '1px solid rgba(0,0,0,0.1)', background: '#F5F5F7', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' },
+  btnPrimary: { width: '100%', padding: '14px', borderRadius: 14, background: '#0066CC', color: '#fff', border: 'none', fontSize: 15, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: "'DM Sans', sans-serif", transition: 'background 0.2s' },
+  btnDisabled: { width: '100%', padding: '14px', borderRadius: 14, background: 'rgba(0,0,0,0.06)', color: 'rgba(0,0,0,0.2)', border: 'none', fontSize: 15, fontWeight: 600, cursor: 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: "'DM Sans', sans-serif" },
+  btnGhost: { width: '100%', padding: '11px', background: 'none', border: 'none', fontSize: 13, color: 'rgba(0,0,0,0.25)', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" },
+}
+
+const PixIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+    <path d="M11 2l4 4h-2.5v3.5H16V7l4 4-4 4v-2.5h-3.5V16h2.5l-4 4-4-4h2.5v-3.5H6V17L2 11l4-4v2.5h3.5V6H7l4-4z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+  </svg>
+)
 
 export default function Checkout() {
   const navigate = useNavigate()
@@ -17,7 +36,7 @@ export default function Checkout() {
   const planKey = searchParams.get('plan') || 'pro'
   const plan = PLANS[planKey] || PLANS.pro
 
-  const [method, setMethod] = useState('pix') // 'pix' | 'card'
+  const [method, setMethod] = useState('pix')
   const [cpf, setCpf] = useState('')
   const [cardNumber, setCardNumber] = useState('')
   const [cardName, setCardName] = useState('')
@@ -25,7 +44,7 @@ export default function Checkout() {
   const [cardCvv, setCardCvv] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [step, setStep] = useState('form') // 'form' | 'pix' | 'success'
+  const [step, setStep] = useState('form')
   const [pixData, setPixData] = useState(null)
   const [copied, setCopied] = useState(false)
   const [timeLeft, setTimeLeft] = useState(3600)
@@ -38,14 +57,12 @@ export default function Checkout() {
     getDoc(doc(db, 'users', user.uid)).then(snap => {
       if (snap.exists()) setUserData({ ...snap.data(), uid: user.uid, email: user.email })
     })
-    // Busca chave publica do PagBank
-    fetch("/.netlify/functions/get-pagbank-pubkey").then(r=>r.json()).then(d=>{ if(d.publicKey) window._pagbankKey = d.publicKey })
-    // Load PagBank SDK for card encryption
+    fetch('/.netlify/functions/get-pagbank-pubkey').then(r => r.json()).then(d => { if (d.publicKey) window._pagbankKey = d.publicKey })
     if (!sdkLoaded.current) {
-      const script = document.createElement('script')
-      script.src = 'https://assets.pagseguro.com.br/checkout-sdk/js/pagSeguro.min.js'
-      script.async = true
-      document.body.appendChild(script)
+      const s = document.createElement('script')
+      s.src = 'https://assets.pagseguro.com.br/checkout-sdk/js/pagSeguro.min.js'
+      s.async = true
+      document.body.appendChild(s)
       sdkLoaded.current = true
     }
   }, [])
@@ -63,29 +80,21 @@ export default function Checkout() {
     if (n.length <= 9) return n.slice(0,3) + '.' + n.slice(3,6) + '.' + n.slice(6)
     return n.slice(0,3) + '.' + n.slice(3,6) + '.' + n.slice(6,9) + '-' + n.slice(9)
   }
-
   const formatCard = v => v.replace(/\D/g, '').slice(0,16).replace(/(.{4})/g, '$1 ').trim()
-  const formatExpiry = v => {
-    const n = v.replace(/\D/g, '').slice(0,4)
-    return n.length > 2 ? n.slice(0,2) + '/' + n.slice(2) : n
-  }
+  const formatExpiry = v => { const n = v.replace(/\D/g,'').slice(0,4); return n.length > 2 ? n.slice(0,2)+'/'+n.slice(2) : n }
   const formatTime = s => `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`
 
   const canPay = () => {
-    const rawCpf = cpf.replace(/\D/g, '')
-    if (rawCpf.length !== 11) return false
-    if (method === 'card') {
-      return cardNumber.replace(/\s/g,'').length === 16 && cardName.length > 2 && cardExpiry.length === 5 && cardCvv.length >= 3
-    }
+    if (cpf.replace(/\D/g,'').length !== 11) return false
+    if (method === 'card') return cardNumber.replace(/\s/g,'').length === 16 && cardName.length > 2 && cardExpiry.length === 5 && cardCvv.length >= 3
     return true
   }
 
   const handlePay = async () => {
     if (!userData || !canPay()) return
-    setError('')
-    setLoading(true)
+    setError(''); setLoading(true)
     try {
-      const rawCpf = cpf.replace(/\D/g, '')
+      const rawCpf = cpf.replace(/\D/g,'')
       let body = {
         plan: planKey,
         userName: userData.businessName || userData.profileName || 'Cliente',
@@ -94,237 +103,177 @@ export default function Checkout() {
         userId: userData.uid,
         paymentMethod: method === 'pix' ? 'PIX' : 'CREDIT_CARD',
       }
-
       if (method === 'card') {
-        // Encrypt card with PagBank SDK
-        if (!window.PagSeguro || !window._pagbankKey) throw new Error('SDK de pagamento não carregado')
+        if (!window.PagSeguro || !window._pagbankKey) throw new Error('SDK de pagamento não carregado. Aguarde e tente novamente.')
         const [expM, expY] = cardExpiry.split('/')
-        const enc = await window.PagSeguro.encryptCard({
-          publicKey: window._pagbankKey,
-          holder: cardName,
-          number: cardNumber.replace(/\s/g, ''),
-          expMonth: expM,
-          expYear: '20' + expY,
-          securityCode: cardCvv,
-        })
+        const enc = await window.PagSeguro.encryptCard({ publicKey: window._pagbankKey, holder: cardName, number: cardNumber.replace(/\s/g,''), expMonth: expM, expYear: '20'+expY, securityCode: cardCvv })
         if (enc.hasErrors) throw new Error('Dados do cartão inválidos')
         body.cardEncrypted = enc.encryptedCard
         body.cardHolder = cardName
       }
-
-      const res = await fetch('/.netlify/functions/create-pagbank-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
+      const res = await fetch('/.netlify/functions/create-pagbank-order', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Erro ao processar pagamento')
-
-      if (data.type === 'pix') {
-        setPixData(data)
-        setStep('pix')
-      } else {
-        setStep('success')
-      }
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+      if (data.type === 'pix') { setPixData(data); setStep('pix') } else { setStep('success') }
+    } catch (err) { setError(err.message) } finally { setLoading(false) }
   }
 
   const handleCopy = () => {
     navigator.clipboard.writeText(pixData.pixText)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2500)
+    setCopied(true); setTimeout(() => setCopied(false), 2500)
   }
 
-  // ─── PIX Screen ────────────────────────────────────────────────────────
+  // ─── PIX Screen ───────────────────────────────────────────────
   if (step === 'pix' && pixData) return (
-    <div className="min-h-screen bg-[#F5F5F7] flex items-center justify-center px-4 py-8 font-dm">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden">
-        <div className="p-5 border-b border-black/5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-syne font-bold text-[#1D1D1F] text-base">{plan.name}</p>
-              <p className="text-xs text-black/40 mt-0.5">PIX · aprovação imediata</p>
-            </div>
-            <p className="font-syne font-extrabold text-[#0066CC] text-xl">{plan.price}</p>
-          </div>
-        </div>
-        <div className="p-5">
-          <div className="text-center mb-4">
-            <p className="text-xs text-black/40 mb-1">Expira em</p>
-            <p className={`font-syne font-bold text-2xl ${timeLeft < 300 ? 'text-red-500' : 'text-[#1D1D1F]'}`}>{formatTime(timeLeft)}</p>
-          </div>
-          {pixData.pixImage && (
-            <div className="flex justify-center mb-4">
-              <div className="p-3 bg-white border border-black/10 rounded-xl">
-                <img src={pixData.pixImage} alt="QR Code PIX" className="w-48 h-48" />
+    <div style={S.page}>
+      <div style={{ ...S.wrap }}>
+        <div style={S.card}>
+          <div style={S.header}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 16, color: '#1D1D1F', margin: 0 }}>{plan.name}</p>
+                <p style={{ fontSize: 12, color: 'rgba(0,0,0,0.4)', margin: '2px 0 0' }}>PIX · aprovação imediata</p>
               </div>
+              <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 20, color: '#0066CC', margin: 0 }}>{plan.price}</p>
             </div>
-          )}
-          <p className="text-xs text-black/40 mb-2">Código PIX copia e cola:</p>
-          <div className="flex gap-2 mb-4">
-            <div className="flex-1 px-3 py-2.5 rounded-xl bg-[#F5F5F7] text-xs text-black/40 break-all leading-relaxed">
-              {pixData.pixText?.slice(0, 50)}...
+          </div>
+          <div style={S.body}>
+            <div style={{ textAlign: 'center', marginBottom: 16 }}>
+              <p style={{ fontSize: 12, color: 'rgba(0,0,0,0.4)', margin: '0 0 4px' }}>Expira em</p>
+              <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 24, color: timeLeft < 300 ? '#e74c3c' : '#1D1D1F', margin: 0 }}>{formatTime(timeLeft)}</p>
             </div>
-            <button onClick={handleCopy} className={`px-3 py-2.5 rounded-xl text-xs font-medium border transition-all whitespace-nowrap flex items-center gap-1.5 ${copied ? 'bg-green-50 border-green-200 text-green-600' : 'bg-[#F5F5F7] border-black/10 text-black/50 hover:bg-[#E8E8ED]'}`}>
-              {copied ? '✓ Copiado' : 'Copiar'}
+            {pixData.pixImage && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+                <div style={{ padding: 10, background: '#fff', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 14 }}>
+                  <img src={pixData.pixImage} alt="QR Code PIX" style={{ width: 190, height: 190, display: 'block' }} />
+                </div>
+              </div>
+            )}
+            <p style={{ ...S.label }}>Código PIX copia e cola:</p>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+              <div style={{ flex: 1, padding: '10px 12px', borderRadius: 10, background: '#F5F5F7', fontSize: 11, color: 'rgba(0,0,0,0.4)', wordBreak: 'break-all', lineHeight: 1.5 }}>
+                {pixData.pixText?.slice(0, 50)}...
+              </div>
+              <button onClick={handleCopy} style={{ padding: '10px 14px', borderRadius: 10, background: copied ? 'rgba(39,174,96,0.08)' : '#F5F5F7', border: `1px solid ${copied ? 'rgba(39,174,96,0.3)' : 'rgba(0,0,0,0.1)'}`, cursor: 'pointer', color: copied ? '#27ae60' : 'rgba(0,0,0,0.5)', fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap', transition: 'all 0.2s' }}>
+                {copied ? '✓ Copiado' : 'Copiar'}
+              </button>
+            </div>
+            <div style={{ padding: '12px 14px', borderRadius: 12, background: 'rgba(0,102,204,0.05)', border: '1px solid rgba(0,102,204,0.12)', fontSize: 12, color: '#0066CC', lineHeight: 1.6, marginBottom: 14 }}>
+              Após o pagamento, seu plano é ativado automaticamente em até 1 minuto.
+            </div>
+            <button onClick={() => navigate('/dashboard')} style={S.btnGhost}>
+              Já paguei, ir para o painel
             </button>
           </div>
-          <div className="px-4 py-3 rounded-xl bg-blue-50 border border-blue-100 text-xs text-blue-600 leading-relaxed mb-4">
-            Após o pagamento, seu plano é ativado automaticamente em até 1 minuto.
-          </div>
-          <button onClick={() => navigate('/dashboard')} className="w-full py-3 rounded-xl text-sm text-black/30 hover:text-black/50 transition-colors">
-            Já paguei, ir para o painel
-          </button>
         </div>
       </div>
     </div>
   )
 
-  // ─── Success Screen ─────────────────────────────────────────────────────
+  // ─── Success Screen ──────────────────────────────────────────
   if (step === 'success') return (
-    <div className="min-h-screen bg-[#F5F5F7] flex items-center justify-center px-4 font-dm">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-black/5 p-8 text-center">
-        <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-4">
-          <span className="text-3xl">✓</span>
-        </div>
-        <p className="font-syne font-bold text-[#1D1D1F] text-xl mb-2">Pagamento aprovado!</p>
-        <p className="text-sm text-black/40 mb-6">Seu plano {plan.name} foi ativado com sucesso.</p>
-        <button onClick={() => navigate('/dashboard')} className="w-full py-3 rounded-xl bg-[#0066CC] text-white font-medium text-sm hover:bg-[#0055AA] transition-colors">
-          Ir para o painel
-        </button>
+    <div style={S.page}>
+      <div style={{ ...S.card, maxWidth: 400, padding: 36, textAlign: 'center' }}>
+        <div style={{ width: 60, height: 60, borderRadius: '50%', background: 'rgba(39,174,96,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 28 }}>✓</div>
+        <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 20, color: '#1D1D1F', margin: '0 0 8px' }}>Pagamento aprovado!</p>
+        <p style={{ fontSize: 14, color: 'rgba(0,0,0,0.4)', margin: '0 0 24px' }}>Seu plano {plan.name} foi ativado com sucesso.</p>
+        <button onClick={() => navigate('/dashboard')} style={S.btnPrimary}>Ir para o painel</button>
       </div>
     </div>
   )
 
-  // ─── Form Screen ────────────────────────────────────────────────────────
+  // ─── Form Screen ─────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#F5F5F7] flex items-center justify-center px-4 py-8 font-dm">
-      <div className="w-full max-w-sm">
+    <div style={S.page}>
+      <div style={S.wrap}>
 
-        {/* Header */}
-        <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-5 mb-3">
-          <div className="flex items-center justify-between">
+        {/* Plan header */}
+        <div style={S.card}>
+          <div style={{ ...S.header, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <p className="font-syne font-bold text-[#1D1D1F] text-lg">{plan.name}</p>
-              <p className="text-xs text-black/40 mt-0.5">Assinatura mensal · cancele quando quiser</p>
+              <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 17, color: '#1D1D1F', margin: 0 }}>{plan.name}</p>
+              <p style={{ fontSize: 12, color: 'rgba(0,0,0,0.4)', margin: '3px 0 0' }}>Assinatura mensal · cancele quando quiser</p>
             </div>
-            <div className="text-right">
-              <p className="font-syne font-extrabold text-[#0066CC] text-2xl">{plan.price}</p>
-              <p className="text-[10px] text-black/25">/mês</p>
+            <div style={{ textAlign: 'right' }}>
+              <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 22, color: '#0066CC', margin: 0 }}>{plan.price}</p>
+              <p style={{ fontSize: 11, color: 'rgba(0,0,0,0.25)', margin: '2px 0 0' }}>/mês</p>
             </div>
           </div>
         </div>
 
-        {/* Method tabs */}
-        <div className="bg-white rounded-2xl border border-black/5 shadow-sm p-5 mb-3">
-          <p className="text-xs text-black/40 mb-3">Forma de pagamento</p>
-          <div className="flex gap-2 mb-5">
-            {[
-              { id: 'pix', label: 'PIX', sub: 'Aprovação imediata' },
-              { id: 'card', label: 'Cartão', sub: 'Crédito' },
-            ].map(m => (
-              <button key={m.id} onClick={() => setMethod(m.id)}
-                className={`flex-1 py-3 px-3 rounded-xl border text-left transition-all ${method === m.id ? 'border-[#0066CC] bg-blue-50' : 'border-black/10 bg-[#F5F5F7] hover:bg-[#EBEBF0]'}`}>
-                <p className={`text-sm font-medium ${method === m.id ? 'text-[#0066CC]' : 'text-[#1D1D1F]'}`}>{m.label}</p>
-                <p className={`text-xs mt-0.5 ${method === m.id ? 'text-blue-400' : 'text-black/30'}`}>{m.sub}</p>
-              </button>
-            ))}
-          </div>
+        {/* Form */}
+        <div style={S.card}>
+          <div style={S.body}>
+            <p style={{ ...S.label, marginBottom: 10 }}>Forma de pagamento</p>
 
-          {/* CPF sempre visível */}
-          <div className="mb-3">
-            <label className="text-xs text-black/40 block mb-1.5">CPF do titular</label>
-            <input
-              className="w-full px-4 py-3 rounded-xl border border-black/10 bg-[#F5F5F7] text-[#1D1D1F] text-sm outline-none focus:border-[#0066CC] focus:bg-white transition-all font-dm"
-              placeholder="000.000.000-00"
-              value={cpf}
-              onChange={e => setCpf(formatCpf(e.target.value))}
-            />
-          </div>
+            {/* Tabs */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+              {[{ id: 'pix', label: 'PIX', sub: 'Aprovação imediata' }, { id: 'card', label: 'Cartão', sub: 'Crédito' }].map(m => (
+                <button key={m.id} onClick={() => setMethod(m.id)} style={method === m.id ? S.tabActive : S.tabInactive}>
+                  <p style={{ fontSize: 14, fontWeight: 500, color: method === m.id ? '#0066CC' : '#1D1D1F', margin: 0 }}>{m.label}</p>
+                  <p style={{ fontSize: 11, color: method === m.id ? 'rgba(0,102,204,0.6)' : 'rgba(0,0,0,0.3)', margin: '2px 0 0' }}>{m.sub}</p>
+                </button>
+              ))}
+            </div>
 
-          {/* Card fields */}
-          <AnimatePresence>
-            {method === 'card' && (
-              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 overflow-hidden">
-                <div>
-                  <label className="text-xs text-black/40 block mb-1.5">Número do cartão</label>
-                  <input
-                    className="w-full px-4 py-3 rounded-xl border border-black/10 bg-[#F5F5F7] text-[#1D1D1F] text-sm outline-none focus:border-[#0066CC] focus:bg-white transition-all font-dm tracking-wider"
-                    placeholder="0000 0000 0000 0000"
-                    value={cardNumber}
-                    onChange={e => setCardNumber(formatCard(e.target.value))}
-                    maxLength={19}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-black/40 block mb-1.5">Nome no cartão</label>
-                  <input
-                    className="w-full px-4 py-3 rounded-xl border border-black/10 bg-[#F5F5F7] text-[#1D1D1F] text-sm outline-none focus:border-[#0066CC] focus:bg-white transition-all font-dm uppercase"
-                    placeholder="NOME COMO NO CARTÃO"
-                    value={cardName}
-                    onChange={e => setCardName(e.target.value.toUpperCase())}
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <label className="text-xs text-black/40 block mb-1.5">Validade</label>
-                    <input
-                      className="w-full px-4 py-3 rounded-xl border border-black/10 bg-[#F5F5F7] text-[#1D1D1F] text-sm outline-none focus:border-[#0066CC] focus:bg-white transition-all font-dm"
-                      placeholder="MM/AA"
-                      value={cardExpiry}
-                      onChange={e => setCardExpiry(formatExpiry(e.target.value))}
-                      maxLength={5}
-                    />
+            {/* CPF */}
+            <div style={{ marginBottom: 14 }}>
+              <label style={S.label}>CPF do titular</label>
+              <input style={S.input} placeholder="000.000.000-00" value={cpf} onChange={e => setCpf(formatCpf(e.target.value))} />
+            </div>
+
+            {/* Card fields */}
+            <AnimatePresence>
+              {method === 'card' && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ overflow: 'hidden' }}>
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={S.label}>Número do cartão</label>
+                    <input style={{ ...S.input, letterSpacing: '0.05em' }} placeholder="0000 0000 0000 0000" value={cardNumber} onChange={e => setCardNumber(formatCard(e.target.value))} maxLength={19} />
                   </div>
-                  <div className="flex-1">
-                    <label className="text-xs text-black/40 block mb-1.5">CVV</label>
-                    <input
-                      className="w-full px-4 py-3 rounded-xl border border-black/10 bg-[#F5F5F7] text-[#1D1D1F] text-sm outline-none focus:border-[#0066CC] focus:bg-white transition-all font-dm"
-                      placeholder="000"
-                      value={cardCvv}
-                      onChange={e => setCardCvv(e.target.value.replace(/\D/g,'').slice(0,4))}
-                      maxLength={4}
-                    />
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={S.label}>Nome no cartão</label>
+                    <input style={{ ...S.input, textTransform: 'uppercase' }} placeholder="NOME COMO NO CARTÃO" value={cardName} onChange={e => setCardName(e.target.value.toUpperCase())} />
                   </div>
-                </div>
-              </motion.div>
+                  <div style={{ display: 'flex', gap: 10, marginBottom: 6 }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={S.label}>Validade</label>
+                      <input style={S.input} placeholder="MM/AA" value={cardExpiry} onChange={e => setCardExpiry(formatExpiry(e.target.value))} maxLength={5} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={S.label}>CVV</label>
+                      <input style={S.input} placeholder="000" value={cardCvv} onChange={e => setCardCvv(e.target.value.replace(/\D/g,'').slice(0,4))} maxLength={4} />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Error */}
+            {error && (
+              <div style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(231,76,60,0.06)', border: '1px solid rgba(231,76,60,0.2)', fontSize: 12, color: '#e74c3c', marginBottom: 14, marginTop: 8 }}>
+                {error}
+              </div>
             )}
-          </AnimatePresence>
-        </div>
 
-        {/* Error */}
-        {error && (
-          <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 text-xs text-red-500 mb-3">
-            {error}
+            {/* Pay button */}
+            <button onClick={handlePay} disabled={loading || !canPay()} style={canPay() && !loading ? S.btnPrimary : S.btnDisabled}>
+              {loading
+                ? <div style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                : <>{method === 'pix' ? <PixIcon /> : null}{method === 'pix' ? `Gerar QR Code · ${plan.price}` : `Pagar com Cartão · ${plan.price}`}</>
+              }
+            </button>
+
+            <button onClick={() => navigate('/dashboard')} style={{ ...S.btnGhost, marginTop: 8 }}>
+              Continuar no plano grátis
+            </button>
+
+            <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(0,0,0,0.2)', marginTop: 16 }}>
+              🔒 Pagamento seguro via PagBank
+            </p>
           </div>
-        )}
-
-        {/* Pay button */}
-        <button
-          onClick={handlePay}
-          disabled={loading || !canPay()}
-          className={`w-full py-4 rounded-2xl font-medium text-sm transition-all mb-2 flex items-center justify-center gap-2 ${canPay() && !loading ? 'bg-[#0066CC] hover:bg-[#0055AA] text-white shadow-sm' : 'bg-black/5 text-black/20 cursor-not-allowed'}`}
-        >
-          {loading ? (
-            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          ) : (
-            `${method === 'pix' ? 'Gerar QR Code PIX' : 'Pagar com Cartão'} · ${plan.price}`
-          )}
-        </button>
-
-        <button onClick={() => navigate('/dashboard')} className="w-full py-3 text-sm text-black/25 hover:text-black/40 transition-colors">
-          Continuar no plano grátis
-        </button>
-
-        <p className="text-center text-xs text-black/20 mt-4 flex items-center justify-center gap-1.5">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Pagamento seguro via PagBank
-        </p>
+        </div>
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div>
   )
 }
