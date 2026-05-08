@@ -477,34 +477,37 @@ export default function Dashboard() {
                     <button onClick={() => navigate('/planos')} className="btn-primary px-8 py-3 shadow-lg shadow-apple-blue/20">Ver planos →</button>
                   </div>
                 ) : (
-                <div className="mb-10">
-                  <h1 className="font-syne font-bold text-3xl mb-2 tracking-tight">Suas Propostas</h1>
-                  <p className="text-black/50 text-sm">Documentos profissionais gerados pelo seu assistente. Prontos para enviar ao cliente.</p>
-                </div>
-                {proposals.length === 0 ? (
-                  <div className="text-center py-20 bg-white rounded-3xl border border-black/5 shadow-sm">
-                    <div className="w-16 h-16 bg-black/5 rounded-2xl flex items-center justify-center mx-auto mb-4 text-black/20"><Icon.File /></div>
-                    <h3 className="font-bold text-lg mb-1">Nenhuma proposta</h3>
-                    <p className="text-sm text-black/40 mb-6">Peça ao assistente para gerar uma proposta.</p>
-                    <button onClick={() => tab('chat')} className="text-sm font-semibold text-apple-blue hover:text-apple-dark">Ir para o assistente →</button>
-                  </div>
-                ) : (
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {proposals.map((p, i) => (
-                      <motion.div key={p.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }} className="bg-white border border-black/5 p-5 rounded-3xl shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between h-40">
-                        <div className="flex gap-4 items-start">
-                          <div className="w-12 h-12 bg-apple-light text-apple-blue rounded-xl flex items-center justify-center shrink-0"><Icon.File /></div>
-                          <div>
-                            <h4 className="font-semibold text-sm line-clamp-2 leading-snug">{p.title}</h4>
-                            <p className="text-xs text-black/40 mt-1">{p.createdAt?.toDate?.()?.toLocaleDateString('pt-BR') || 'Hoje'}</p>
-                          </div>
-                        </div>
-                        <button onClick={() => downloadPDF(p)} className="w-full mt-4 flex items-center justify-center gap-2 bg-black/5 hover:bg-apple-blue hover:text-white text-black/70 text-sm font-medium py-2.5 rounded-xl transition-colors">
-                          <Icon.Download /> Baixar PDF
-                        </button>
-                      </motion.div>
-                    ))}
-                  </div>
+                  <>
+                    <div className="mb-10">
+                      <h1 className="font-syne font-bold text-3xl mb-2 tracking-tight">Suas Propostas</h1>
+                      <p className="text-black/50 text-sm">Documentos profissionais gerados pelo seu assistente. Prontos para enviar ao cliente.</p>
+                    </div>
+                    {proposals.length === 0 ? (
+                      <div className="text-center py-20 bg-white rounded-3xl border border-black/5 shadow-sm">
+                        <div className="w-16 h-16 bg-black/5 rounded-2xl flex items-center justify-center mx-auto mb-4 text-black/20"><Icon.File /></div>
+                        <h3 className="font-bold text-lg mb-1">Nenhuma proposta</h3>
+                        <p className="text-sm text-black/40 mb-6">Peça ao assistente para gerar uma proposta.</p>
+                        <button onClick={() => tab('chat')} className="text-sm font-semibold text-apple-blue hover:text-apple-dark">Ir para o assistente →</button>
+                      </div>
+                    ) : (
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {proposals.map((p, i) => (
+                          <motion.div key={p.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }} className="bg-white border border-black/5 p-5 rounded-3xl shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between h-40">
+                            <div className="flex gap-4 items-start">
+                              <div className="w-12 h-12 bg-apple-light text-apple-blue rounded-xl flex items-center justify-center shrink-0"><Icon.File /></div>
+                              <div>
+                                <h4 className="font-semibold text-sm line-clamp-2 leading-snug">{p.title}</h4>
+                                <p className="text-xs text-black/40 mt-1">{p.createdAt?.toDate?.()?.toLocaleDateString('pt-BR') || 'Hoje'}</p>
+                              </div>
+                            </div>
+                            <button onClick={() => downloadPDF(p)} className="w-full mt-4 flex items-center justify-center gap-2 bg-black/5 hover:bg-apple-blue hover:text-white text-black/70 text-sm font-medium py-2.5 rounded-xl transition-colors">
+                              <Icon.Download /> Baixar PDF
+                            </button>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </motion.div>
             )}
