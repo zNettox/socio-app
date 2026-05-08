@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { auth, db } from '../firebase'
+import { doc, getDoc } from 'firebase/firestore'
 
 const PLANS = {
-  pro:      { name: 'Sócio Pro', price: 'R$49,90', link: 'https://pag.ae/81LgUyNcP/button' },
-  business: { name: 'Sócio Business', price: 'R$89,90', link: 'https://pag.ae/81LgVm968/button' },
+  pro:      { name: 'Sócio Pro', price: 'R$49,90', amount: 4990 },
+  business: { name: 'Sócio Business', price: 'R$89,90', amount: 8990 },
 }
 
 const PixIcon = () => (
@@ -12,109 +14,223 @@ const PixIcon = () => (
     <path d="M11 2l4 4h-2.5v3.5H16V7l4 4-4 4v-2.5h-3.5V16h2.5l-4 4-4-4h2.5v-3.5H6V17L2 11l4-4v2.5h3.5V6H7l4-4z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
   </svg>
 )
-const CardIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-    <rect x="1.5" y="5" width="19" height="12" rx="2.5" stroke="currentColor" strokeWidth="1.3"/>
-    <path d="M1.5 9h19" stroke="currentColor" strokeWidth="1.3"/>
-    <rect x="4" y="13" width="5" height="2" rx="0.5" fill="currentColor"/>
-  </svg>
-)
-const ExternalIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-    <path d="M6 2H2a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1V8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-    <path d="M9 1h4v4M13 1L7 7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-)
+
 const LockIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-    <rect x="2" y="5.5" width="8" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.1"/>
-    <path d="M4 5.5V4a2 2 0 014 0v1.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/>
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </svg>
+)
+
+const CopyIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+  </svg>
+)
+
+const CheckIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
   </svg>
 )
 
 export default function Checkout() {
   const navigate = useNavigate()
-  const [params] = useSearchParams()
-  const raw = params.get('plan') || 'pro'
-  const planKey = raw.includes('biz') || raw.includes('business') ? 'business' : 'pro'
-  const plan = PLANS[planKey]
-  const [method, setMethod] = useState(null)
+  const [searchParams] = useSearchParams()
+  const planKey = searchParams.get('plan') || 'pro'
+  const plan = PLANS[planKey] || PLANS.pro
 
-  const handlePay = () => {
-    if (!method) return
-    window.location.href = plan.link
+  const [cpf, setCpf] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [step, setStep] = useState('form') // 'form' | 'pix'
+  const [pixData, setPixData] = useState(null)
+  const [copied, setCopied] = useState(false)
+  const [userData, setUserData] = useState(null)
+  const [timeLeft, setTimeLeft] = useState(3600)
+
+  useEffect(() => {
+    const user = auth.currentUser
+    if (!user) { navigate('/login'); return }
+    getDoc(doc(db, 'users', user.uid)).then(snap => {
+      if (snap.exists()) setUserData({ ...snap.data(), uid: user.uid, email: user.email })
+    })
+  }, [])
+
+  useEffect(() => {
+    if (step !== 'pix') return
+    const t = setInterval(() => setTimeLeft(p => {
+      if (p <= 1) { clearInterval(t); return 0 }
+      return p - 1
+    }), 1000)
+    return () => clearInterval(t)
+  }, [step])
+
+  const formatCpf = (v) => {
+    const n = v.replace(/\D/g, '').slice(0, 11)
+    return n.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4')
+           .replace(/(\d{3})(\d{3})(\d{1,3})$/, '$1.$2.$3')
+           .replace(/(\d{3})(\d{1,3})$/, '$1.$2')
+  }
+
+  const formatTime = (s) => {
+    const m = Math.floor(s / 60).toString().padStart(2, '0')
+    const sec = (s % 60).toString().padStart(2, '0')
+    return `${m}:${sec}`
+  }
+
+  const handlePay = async () => {
+    if (!userData) return
+    const rawCpf = cpf.replace(/\D/g, '')
+    if (rawCpf.length !== 11) { setError('CPF inválido'); return }
+    setError('')
+    setLoading(true)
+    try {
+      const res = await fetch('/.netlify/functions/create-pagbank-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: planKey,
+          userName: userData.businessName || userData.profileName || 'Cliente',
+          userEmail: userData.email,
+          userCpf: rawCpf,
+          userId: userData.uid,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Erro ao gerar PIX')
+      setPixData(data)
+      setStep('pix')
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(pixData.pixText)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2500)
   }
 
   const S = {
-    root: { minHeight: '100vh', background: '#060606', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', fontFamily: "'DM Sans', sans-serif" },
-    card: { width: '100%', maxWidth: 420, background: '#0e0e0e', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, overflow: 'hidden' },
-    methodBtn: (active) => ({ flex: 1, padding: '18px 12px', borderRadius: 14, cursor: 'pointer', transition: 'all 0.2s', border: active ? '2px solid #BA7517' : '1px solid rgba(255,255,255,0.08)', background: active ? 'rgba(186,117,23,0.08)' : 'rgba(255,255,255,0.02)', color: active ? '#FAC775' : 'rgba(255,255,255,0.45)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }),
+    page: { minHeight: '100vh', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', fontFamily: "'DM Sans', sans-serif" },
+    card: { width: '100%', maxWidth: 400, background: '#111', borderRadius: 24, border: '1px solid rgba(255,255,255,0.07)', overflow: 'hidden' },
+    header: { padding: '20px 24px', background: 'rgba(186,117,23,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' },
+    body: { padding: '24px' },
+    input: { width: '100%', padding: '13px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', fontSize: 15, outline: 'none', boxSizing: 'border-box', fontFamily: "'DM Sans', sans-serif" },
+    btn: (active) => ({ width: '100%', padding: '14px', borderRadius: 12, background: active ? '#BA7517' : 'rgba(186,117,23,0.15)', color: active ? '#fff' : 'rgba(255,255,255,0.3)', border: 'none', fontSize: 15, fontWeight: 600, cursor: active ? 'pointer' : 'not-allowed', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: "'DM Sans', sans-serif" }),
+  }
+
+  if (step === 'pix' && pixData) {
+    return (
+      <div style={S.page}>
+        <div style={S.card}>
+          <div style={S.header}>
+            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 17, color: '#fff' }}>Pagar com PIX</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', marginTop: 3 }}>{plan.name} · {plan.price}/mês</div>
+          </div>
+          <div style={S.body}>
+            {/* Timer */}
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>QR Code expira em</div>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, color: timeLeft < 300 ? '#e74c3c' : '#BA7517' }}>{formatTime(timeLeft)}</div>
+            </div>
+
+            {/* QR Code */}
+            {pixData.pixImage ? (
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+                <div style={{ padding: 12, background: '#fff', borderRadius: 16 }}>
+                  <img src={pixData.pixImage} alt="QR Code PIX" style={{ width: 200, height: 200, display: 'block' }} />
+                </div>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', fontSize: 13, color: 'rgba(255,255,255,0.3)', marginBottom: 20 }}>Escaneie o QR code no seu banco</div>
+            )}
+
+            {/* Copia e cola */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginBottom: 8 }}>Ou copie o código PIX:</div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
+                <div style={{ flex: 1, padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', fontSize: 11, color: 'rgba(255,255,255,0.4)', wordBreak: 'break-all', lineHeight: 1.5 }}>
+                  {pixData.pixText?.slice(0, 60)}...
+                </div>
+                <button onClick={handleCopy} style={{ padding: '10px 14px', borderRadius: 10, background: copied ? 'rgba(39,174,96,0.15)' : 'rgba(255,255,255,0.06)', border: `1px solid ${copied ? 'rgba(39,174,96,0.3)' : 'rgba(255,255,255,0.1)'}`, cursor: 'pointer', color: copied ? '#27ae60' : 'rgba(255,255,255,0.6)', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, whiteSpace: 'nowrap' }}>
+                  {copied ? <><CheckIcon /> Copiado</> : <><CopyIcon /> Copiar</>}
+                </button>
+              </div>
+            </div>
+
+            <div style={{ padding: '12px 14px', borderRadius: 10, background: 'rgba(186,117,23,0.06)', border: '1px solid rgba(186,117,23,0.15)', fontSize: 12, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, marginBottom: 20 }}>
+              Após o pagamento, seu plano é ativado automaticamente em até 1 minuto.
+            </div>
+
+            <button onClick={() => navigate('/dashboard')} style={{ width: '100%', padding: '12px', background: 'none', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, color: 'rgba(255,255,255,0.3)', fontSize: 13, cursor: 'pointer' }}>
+              Já paguei, ir para o painel
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div style={S.root}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap');`}</style>
+    <div style={S.page}>
       <div style={S.card}>
-
         {/* Header */}
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 13, cursor: 'pointer', padding: 0, marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }}>
-            ← Voltar
-          </button>
+        <div style={S.header}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18 }}>{plan.name}</div>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: '#fff' }}>{plan.name}</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 3 }}>Assinatura mensal · cancele quando quiser</div>
             </div>
             <div>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 26, color: '#BA7517', textAlign: 'right' }}>{plan.price}</div>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 26, color: '#BA7517' }}>{plan.price}</div>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', textAlign: 'right' }}>/mês</div>
             </div>
           </div>
         </div>
 
         {/* Body */}
-        <div style={{ padding: '24px' }}>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 16 }}>Escolha como pagar:</div>
+        <div style={S.body}>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>PIX aprovação imediata</div>
 
-          {/* Method buttons */}
-          <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
-            <button style={S.methodBtn(method === 'pix')} onClick={() => setMethod('pix')}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(186,117,23,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#BA7517' }}>
               <PixIcon />
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 500 }}>PIX</div>
-                <div style={{ fontSize: 11, color: method === 'pix' ? 'rgba(186,117,23,0.6)' : 'rgba(255,255,255,0.2)', marginTop: 2 }}>Aprovação imediata</div>
-              </div>
-            </button>
-            <button style={S.methodBtn(method === 'card')} onClick={() => setMethod('card')}>
-              <CardIcon />
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 500 }}>Cartão</div>
-                <div style={{ fontSize: 11, color: method === 'card' ? 'rgba(186,117,23,0.6)' : 'rgba(255,255,255,0.2)', marginTop: 2 }}>Crédito recorrente</div>
-              </div>
-            </button>
+            </div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 500, color: '#fff' }}>Pix</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>QR Code gerado na hora</div>
+            </div>
           </div>
 
-          {/* Info box */}
-          <AnimatePresence>
-            {method && (
-              <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                style={{ padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: 20, fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>
-                {method === 'pix'
-                  ? 'Você será redirecionado ao PagBank para concluir o pagamento. Após a confirmação, seu plano é ativado automaticamente.'
-                  : 'Você será redirecionado ao PagBank para inserir os dados do cartão com segurança. A cobrança é mensal e automática.'
-                }
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {/* CPF */}
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', display: 'block', marginBottom: 6 }}>CPF do pagador</label>
+            <input
+              style={S.input}
+              placeholder="000.000.000-00"
+              value={cpf}
+              onChange={e => setCpf(formatCpf(e.target.value))}
+            />
+          </div>
 
-          {/* Pay button */}
-          <button onClick={handlePay} disabled={!method}
-            style={{ width: '100%', padding: '14px', borderRadius: 12, background: method ? '#BA7517' : 'rgba(186,117,23,0.2)', color: method ? '#fff' : 'rgba(255,255,255,0.2)', border: 'none', fontSize: 14, fontWeight: 500, cursor: method ? 'pointer' : 'not-allowed', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: "'DM Sans', sans-serif" }}>
-            {method ? (
-              <>Pagar {plan.price} via PagBank <ExternalIcon /></>
+          {error && (
+            <div style={{ fontSize: 12, color: '#e74c3c', marginBottom: 14, padding: '10px 12px', borderRadius: 8, background: 'rgba(231,76,60,0.08)', border: '1px solid rgba(231,76,60,0.2)' }}>
+              {error}
+            </div>
+          )}
+
+          <button
+            onClick={handlePay}
+            disabled={loading || cpf.replace(/\D/g, '').length !== 11}
+            style={S.btn(!loading && cpf.replace(/\D/g, '').length === 11)}
+          >
+            {loading ? (
+              <div style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
             ) : (
-              'Selecione um método'
+              <><PixIcon /> Gerar QR Code · {plan.price}</>
             )}
           </button>
 
@@ -122,12 +238,13 @@ export default function Checkout() {
             Continuar no plano grátis
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 20, color: 'rgba(255,255,255,0.15)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 20, color: 'rgba(255,255,255,0.2)', fontSize: 11 }}>
             <LockIcon />
-            <span style={{ fontSize: 11 }}>Pagamento 100% seguro via PagBank</span>
+            <span>Pagamento seguro via PagBank</span>
           </div>
         </div>
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div>
   )
 }

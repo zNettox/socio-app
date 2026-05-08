@@ -1,8 +1,7 @@
-// Cria ordem no PagBank e retorna QR Code PIX ou sessão de cartão
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' }
 
-  const { plan, userName, userEmail, userDocument, userPhone, userId, paymentMethod } = JSON.parse(event.body || '{}')
+  const { plan, userName, userEmail, userCpf, userId } = JSON.parse(event.body || '{}')
 
   const PLANS = {
     pro:      { name: 'Sócio Pro — Mensal', amount: 4990 },
@@ -12,23 +11,29 @@ export const handler = async (event) => {
   const planData = PLANS[plan]
   if (!planData) return { statusCode: 400, body: JSON.stringify({ error: 'Plano inválido' }) }
 
-  const webhookUrl = `${process.env.URL}/.netlify/functions/pagbank-webhook`
+  const cpf = userCpf?.replace(/\D/g, '')
+  if (!cpf || cpf.length !== 11) return { statusCode: 400, body: JSON.stringify({ error: 'CPF inválido' }) }
 
   const expireDate = new Date()
-  expireDate.setHours(expireDate.getHours() + 24)
+  expireDate.setHours(expireDate.getHours() + 1)
 
   const body = {
     reference_id: `${userId}:${plan}`,
     customer: {
       name: userName,
       email: userEmail,
-      tax_id: userDocument?.replace(/\D/g, ''),
-      phones: userPhone ? [{ country: '55', area: userPhone.replace(/\D/g, '').slice(0, 2), number: userPhone.replace(/\D/g, '').slice(2), type: 'MOBILE' }] : undefined,
+      tax_id: cpf,
     },
-    items: [{ name: planData.name, quantity: 1, unit_amount: planData.amount }],
-    qr_codes: paymentMethod === 'pix' ? [{ amount: { value: planData.amount }, expiration_date: expireDate.toISOString() }] : undefined,
-    charges: paymentMethod === 'card' ? [{ amount: { value: planData.amount }, payment_method: { type: 'CREDIT_CARD', installments: 1, capture: true } }] : undefined,
-    notification_urls: [webhookUrl],
+    items: [{
+      name: planData.name,
+      quantity: 1,
+      unit_amount: planData.amount,
+    }],
+    qr_codes: [{
+      amount: { value: planData.amount },
+      expiration_date: expireDate.toISOString(),
+    }],
+    notification_urls: [`${process.env.URL}/.netlify/functions/pagbank-webhook`],
   }
 
   try {
@@ -48,30 +53,23 @@ export const handler = async (event) => {
       return { statusCode: 400, body: JSON.stringify({ error: data.error_messages?.[0]?.description || 'Erro ao criar ordem' }) }
     }
 
-    // Extract PIX data
-    if (paymentMethod === 'pix' && data.qr_codes?.[0]) {
-      const qr = data.qr_codes[0]
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          orderId: data.id,
-          pixCopyPaste: qr.text,
-          pixQrCode: qr.links?.find(l => l.media === 'image/png')?.href,
-          expiresAt: qr.expiration_date,
-        }),
-      }
-    }
+    const qr = data.qr_codes?.[0]
+    if (!qr) return { statusCode: 400, body: JSON.stringify({ error: 'QR code não gerado' }) }
 
-    // Card — return charge id for frontend to complete
-    if (paymentMethod === 'card' && data.charges?.[0]) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ orderId: data.id, chargeId: data.charges[0].id }),
-      }
-    }
+    const imageLink = qr.links?.find(l => l.media === 'image/png')?.href
 
-    return { statusCode: 200, body: JSON.stringify(data) }
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        orderId: data.id,
+        pixText: qr.text,
+        pixImage: imageLink,
+        expiresAt: qr.expiration_date,
+        amount: planData.amount,
+      }),
+    }
   } catch (err) {
+    console.error('Error:', err)
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) }
   }
 }
