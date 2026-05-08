@@ -54,7 +54,7 @@ export default function Landing() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/login')}
-              className="text-sm font-semibold text-black/60 hover:text-black transition-colors hidden sm:block"
+              className="text-sm font-semibold text-black/60 hover:text-black transition-colors"
             >
               Entrar
             </button>

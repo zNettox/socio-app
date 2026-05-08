@@ -224,22 +224,27 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) return
-    const q = query(collection(db, 'users', user.uid, 'conversations'), where('status', '!=', 'trash'), orderBy('status'), orderBy('updatedAt', 'desc'))
+    const q = query(collection(db, 'users', user.uid, 'conversations'), orderBy('updatedAt', 'desc'))
     return onSnapshot(q, snap => {
-      const convs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-      setConversations(convs)
-      if (!activeConvId && convs.length > 0) setActiveConvId(convs[0].id)
+      const all = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      const active = all.filter(c => c.status !== 'trash')
+      setConversations(active)
+      if (!activeConvId && active.length > 0) setActiveConvId(active[0].id)
+      
+      // Update trash state from same snapshot to be efficient
+      setTrashedItems(prev => ({ ...prev, conversations: all.filter(c => c.status === 'trash').map(c => ({ ...c, type: 'conv' })) }))
     })
   }, [])
 
   const [trashedItems, setTrashedItems] = useState({ conversations: [], proposals: [] })
   useEffect(() => {
     if (!user) return
-    const q1 = query(collection(db, 'users', user.uid, 'conversations'), where('status', '==', 'trash'))
-    const q2 = query(collection(db, 'users', user.uid, 'proposals'), where('status', '==', 'trash'))
-    const un1 = onSnapshot(q1, snap => setTrashedItems(prev => ({ ...prev, conversations: snap.docs.map(d => ({ id: d.id, ...d.data(), type: 'conv' })) })))
-    const un2 = onSnapshot(q2, snap => setTrashedItems(prev => ({ ...prev, proposals: snap.docs.map(d => ({ id: d.id, ...d.data(), type: 'prop' })) })))
-    return () => { un1(); un2() }
+    const q = query(collection(db, 'users', user.uid, 'proposals'), orderBy('createdAt', 'desc'))
+    return onSnapshot(q, snap => {
+      const all = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      setProposals(all.filter(p => p.status !== 'trash'))
+      setTrashedItems(prev => ({ ...prev, proposals: all.filter(p => p.status === 'trash').map(p => ({ ...p, type: 'prop' })) }))
+    })
   }, [])
 
   useEffect(() => {
@@ -248,11 +253,7 @@ export default function Dashboard() {
     return onSnapshot(q, snap => setMessages(snap.docs.map(d => ({ id: d.id, ...d.data() }))))
   }, [activeConvId])
 
-  useEffect(() => {
-    if (!user) return
-    const q = query(collection(db, 'users', user.uid, 'proposals'), where('status', '!=', 'trash'), orderBy('status'), orderBy('createdAt', 'desc'))
-    return onSnapshot(q, snap => setProposals(snap.docs.map(d => ({ id: d.id, ...d.data() }))))
-  }, [])
+  // Proposals are handled in the same hook as trash for proposals above
 
   useEffect(() => { messagesEnd.current?.scrollIntoView({ behavior: 'smooth' }) }, [messages])
 
