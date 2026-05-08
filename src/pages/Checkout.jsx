@@ -101,7 +101,6 @@ export default function Checkout() {
   const canPay = () => {
     if (cpf.replace(/\D/g,'').length !== 11) return false
     if (method === 'card') {
-      if (!sdkReady || !window._pagbankKey) return false
       return cardNumber.replace(/\s/g,'').length === 16 && cardName.length > 2 && cardExpiry.length === 5 && cardCvv.length >= 3
     }
     return true
@@ -121,6 +120,8 @@ export default function Checkout() {
         paymentMethod: method === 'pix' ? 'PIX' : 'CREDIT_CARD',
       }
       if (method === 'card') {
+        if (!window.PagSeguro) throw new Error('Módulo de pagamento ainda carregando. Aguarde alguns segundos e tente novamente.')
+        if (!window._pagbankKey) throw new Error('Chave de pagamento não disponível. Recarregue a página.')
         const [expM, expY] = cardExpiry.split('/')
         const enc = await window.PagSeguro.encryptCard({
           publicKey: window._pagbankKey,
@@ -235,12 +236,14 @@ export default function Checkout() {
 
             {/* Tabs */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
-              {[{ id: 'pix', label: 'PIX', sub: 'Aprovação imediata' }, { id: 'card', label: 'Cartão', sub: 'Crédito' }].map(m => (
-                <button key={m.id} onClick={() => setMethod(m.id)} style={method === m.id ? S.tabActive : S.tabInactive}>
-                  <p style={{ fontSize: 14, fontWeight: 500, color: method === m.id ? '#0066CC' : '#1D1D1F', margin: 0 }}>{m.label}</p>
-                  <p style={{ fontSize: 11, color: method === m.id ? 'rgba(0,102,204,0.6)' : 'rgba(0,0,0,0.3)', margin: '2px 0 0' }}>{m.sub}</p>
-                </button>
-              ))}
+              <div style={{ flex: 1, padding: '12px 10px', borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)', background: 'rgba(0,0,0,0.02)', textAlign: 'left', opacity: 0.45, cursor: 'not-allowed' }}>
+                <p style={{ fontSize: 14, fontWeight: 500, color: '#1D1D1F', margin: 0 }}>PIX</p>
+                <p style={{ fontSize: 11, color: 'rgba(0,0,0,0.3)', margin: '2px 0 0' }}>Em breve</p>
+              </div>
+              <button onClick={() => setMethod('card')} style={S.tabActive}>
+                <p style={{ fontSize: 14, fontWeight: 500, color: '#0066CC', margin: 0 }}>Cartão</p>
+                <p style={{ fontSize: 11, color: 'rgba(0,102,204,0.6)', margin: '2px 0 0' }}>Crédito</p>
+              </button>
             </div>
 
             {/* CPF */}
@@ -271,12 +274,6 @@ export default function Checkout() {
                       <input style={S.input} placeholder="000" value={cardCvv} onChange={e => setCardCvv(e.target.value.replace(/\D/g,'').slice(0,4))} maxLength={4} />
                     </div>
                   </div>
-                  {/* SDK loading hint */}
-                  {!sdkReady && (
-                    <p style={{ fontSize: 11, color: 'rgba(0,0,0,0.3)', margin: '4px 0 8px', textAlign: 'center' }}>
-                      Carregando módulo de pagamento…
-                    </p>
-                  )}
                 </motion.div>
               )}
             </AnimatePresence>
