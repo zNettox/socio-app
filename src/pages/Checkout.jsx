@@ -57,7 +57,7 @@ export default function Checkout() {
     getDoc(doc(db, 'users', user.uid)).then(snap => {
       if (snap.exists()) setUserData({ ...snap.data(), uid: user.uid, email: user.email })
     })
-    fetch('/.netlify/functions/get-pagbank-pubkey').then(r => r.json()).then(d => { if (d.publicKey) window._pagbankKey = d.publicKey })
+    fetch('/.netlify/functions/get_pagbank_pubkey').then(r => r.json()).then(d => { if (d.publicKey) window._pagbankKey = d.publicKey })
     if (!sdkLoaded.current) {
       const s = document.createElement('script')
       s.src = 'https://assets.pagseguro.com.br/checkout-sdk/js/pagSeguro.min.js'
