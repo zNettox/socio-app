@@ -11,24 +11,25 @@ import Cashflow from './Cashflow'
 
 // ─── SVG Icons ────────────────────────────────────────────────────────────
 const Icon = {
-  Chat: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
-  File: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
-  Cash: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
-  Brush: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>,
-  Support: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
-  Plus: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
-  Send: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
-  Menu: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
-  User: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
-  Camera: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
-  Crown: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="2 15 12 18 22 15 22 20 2 20 2 15"/><polyline points="2 15 5 5 9 10 12 3 15 10 19 5 22 15"/></svg>,
-  CreditCard: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
-  Logout: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
-  Check: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
-  Download: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
-  Trash: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>,
-  Restore: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>,
-  SocioMark: ({ size = 28 }) => <svg width={size} height={size} viewBox="0 0 64 64" fill="none"><text x="8" y="48" fontSize="52" fontWeight="800" fill="#1D1D1F" fontFamily="'Syne', sans-serif">S</text><circle cx="46" cy="16" r="6" fill="#0066CC"/></svg>,
+  Chat: (p) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+  File: (p) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
+  Cash: (p) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+  Brush: (p) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>,
+  Support: (p) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+  Plus: (p) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
+  Send: (p) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>,
+  Menu: (p) => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" {...p}><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>,
+  User: (p) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  Camera: (p) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
+  Crown: (p) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polygon points="2 15 12 18 22 15 22 20 2 20 2 15"/><polyline points="2 15 5 5 9 10 12 3 15 10 19 5 22 15"/></svg>,
+  CreditCard: (p) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+  Logout: (p) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+  Check: (p) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="20 6 9 17 4 12"/></svg>,
+  Download: (p) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
+  Trash: (p) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>,
+  Restore: (p) => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>,
+  Whatsapp: (p) => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+  SocioMark: ({ size = 28, ...p }) => <svg width={size} height={size} viewBox="0 0 64 64" fill="none" {...p}><text x="8" y="48" fontSize="52" fontWeight="800" fill="#1D1D1F" fontFamily="'Syne', sans-serif">S</text><circle cx="46" cy="16" r="6" fill="#0066CC"/></svg>,
 }
 
 // ─── Sound ─────────────────────────────────────────────────────────────────
@@ -163,12 +164,74 @@ function renderMarkdown(text) {
     }
     // Normal paragraph
     else {
-      elements.push(<p key={key++} className="my-0.5 leading-relaxed">{parseInline(line)}</p>)
+      const parsed = parseInline(line)
+      if (parsed.length === 0) return null
+      elements.push(<p key={key++} className="my-1.5 leading-relaxed text-black/80">{parsed}</p>)
     }
   })
 
   if (inTable) flushTable()
   return elements
+}
+
+function ProposalForm({ onSubmit }) {
+  const [data, setData] = useState({
+    cliente: '',
+    servicos: '',
+    valor: '',
+    prazo: '',
+    pagamento: ''
+  })
+
+  return (
+    <div className="bg-apple-light border border-apple-blue/20 rounded-[24px] p-5 my-4 shadow-sm">
+      <div className="flex items-center gap-2 mb-4 text-apple-blue">
+        <Icon.File />
+        <span className="font-bold text-sm">Dados da Proposta</span>
+      </div>
+      <div className="space-y-3">
+        <input 
+          placeholder="Nome do cliente/empresa" 
+          value={data.cliente}
+          onChange={e => setData({...data, cliente: e.target.value})}
+          className="w-full bg-white border border-black/5 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-apple-blue/30"
+        />
+        <textarea 
+          placeholder="Serviços (ex: 5 artes para feed, 1 vídeo...)" 
+          value={data.servicos}
+          onChange={e => setData({...data, servicos: e.target.value})}
+          className="w-full bg-white border border-black/5 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-apple-blue/30 h-20"
+        />
+        <div className="grid grid-cols-2 gap-3">
+          <input 
+            placeholder="Valor total (R$)" 
+            value={data.valor}
+            onChange={e => setData({...data, valor: e.target.value})}
+            className="w-full bg-white border border-black/5 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-apple-blue/30"
+          />
+          <input 
+            placeholder="Prazo (ex: 3 dias)" 
+            value={data.prazo}
+            onChange={e => setData({...data, prazo: e.target.value})}
+            className="w-full bg-white border border-black/5 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-apple-blue/30"
+          />
+        </div>
+        <input 
+          placeholder="Forma de pagamento (ex: PIX, 50% sinal)" 
+          value={data.pagamento}
+          onChange={e => setData({...data, pagamento: e.target.value})}
+          className="w-full bg-white border border-black/5 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-apple-blue/30"
+        />
+        <button 
+          onClick={() => onSubmit(`DADOS DA PROPOSTA:\nCliente: ${data.cliente}\nServiços: ${data.servicos}\nValor: R$ ${data.valor}\nPrazo: ${data.prazo}\nPagamento: ${data.pagamento}\n\nPor favor, gere a proposta oficial agora.`)}
+          disabled={!data.cliente || !data.servicos}
+          className="w-full bg-apple-blue text-white py-3 rounded-xl font-bold text-sm shadow-md shadow-apple-blue/20 hover:bg-apple-dark transition-all disabled:opacity-50"
+        >
+          Gerar Proposta Profissional
+        </button>
+      </div>
+    </div>
+  )
 }
 
 // ─── Constants ─────────────────────────────────────────────────────────────
@@ -315,6 +378,26 @@ export default function Dashboard() {
       const reply = data.reply || 'Desculpe, não consegui processar sua mensagem.'
       playSound('receive')
       await addDoc(collection(db, 'users', user.uid, 'conversations', convId, 'messages'), { role: 'assistant', content: reply, createdAt: serverTimestamp() })
+      
+      // Auto-save proposal if detected
+      if (reply.includes('PROPOSTA COMERCIAL')) {
+        await addDoc(collection(db, 'users', user.uid, 'proposals'), { 
+          title: 'Proposta ' + new Date().toLocaleDateString('pt-BR'), 
+          content: reply, 
+          createdAt: serverTimestamp(), 
+          businessName: userData?.businessName,
+          status: 'active'
+        })
+        // Separate confirmation message
+        setTimeout(async () => {
+          await addDoc(collection(db, 'users', user.uid, 'conversations', convId, 'messages'), { 
+            role: 'assistant', 
+            content: '✅ **Sua proposta foi gerada e salva automaticamente na aba "Propostas"!** Você já pode baixá-la em PDF lá.', 
+            createdAt: serverTimestamp() 
+          })
+          playSound('success')
+        }, 1000)
+      }
     } catch {
       await addDoc(collection(db, 'users', user.uid, 'conversations', convId, 'messages'), { role: 'assistant', content: 'Erro de conexão. Tente novamente.', createdAt: serverTimestamp() })
     }
@@ -414,8 +497,8 @@ export default function Dashboard() {
           </div>
           
           <div className="p-4">
-            <button onClick={newConv} className="w-full flex items-center gap-2 bg-apple-blue text-white px-4 py-3 rounded-2xl font-medium text-sm hover:shadow-lg hover:shadow-apple-blue/20 transition-all active:scale-95">
-              <Icon.Plus /> Nova conversa
+            <button onClick={newConv} className="w-full flex items-center justify-center gap-2 bg-apple-blue text-white px-4 py-3.5 rounded-2xl font-bold text-sm shadow-xl shadow-apple-blue/20 hover:bg-apple-dark transition-all active:scale-95 glow-btn">
+              <Icon.Plus size={18} /> Nova conversa
             </button>
           </div>
 
@@ -491,7 +574,18 @@ export default function Dashboard() {
                       <div className="max-w-[85%] md:max-w-[75%]">
                         <div className={`text-[11px] font-medium text-black/40 mb-1 px-1 ${msg.role === 'user' ? 'text-right' : ''}`}>{msg.role === 'assistant' ? 'Sócio' : 'Você'}</div>
                         <div className={`p-4 text-[14px] leading-relaxed shadow-sm ${msg.role === 'assistant' ? 'bg-white border border-black/5 text-black rounded-[20px_20px_20px_4px]' : 'bg-apple-blue text-white rounded-[20px_20px_4px_20px]'}`}>
-                          {msg.role === 'assistant' ? renderMarkdown(msg.content) : msg.content}
+                          {msg.role === 'assistant' ? (
+                            <>
+                              {msg.content.includes('[QUESTIONARIO_PROPOSTA]') ? (
+                                <>
+                                  {renderMarkdown(msg.content.replace('[QUESTIONARIO_PROPOSTA]', ''))}
+                                  <ProposalForm onSubmit={(text) => sendMessage(text)} />
+                                </>
+                              ) : (
+                                renderMarkdown(msg.content)
+                              )}
+                            </>
+                          ) : msg.content}
                         </div>
                         {msg.role === 'assistant' && msg.content.includes('PROPOSTA COMERCIAL') && (
                           <button onClick={() => saveProposalFromChat(msg)} className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-apple-blue bg-white px-3 py-1.5 rounded-full border border-apple-blue/10 shadow-sm hover:bg-apple-blue hover:text-white transition-all">
@@ -514,9 +608,9 @@ export default function Dashboard() {
                 <div className="p-4 md:p-6 bg-gradient-to-t from-[#F5F5F7] via-[#F5F5F7] to-transparent sticky bottom-0">
                   <div className="relative max-w-3xl mx-auto">
                     {plan === 'free' && msgCount < limit && <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-medium text-black/40 bg-white/50 px-3 py-1 rounded-full backdrop-blur-md border border-black/5">{limit - msgCount} mensagens grátis</div>}
-                    <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()} placeholder={isLimited ? 'Faça upgrade para continuar...' : 'Pergunte ou peça uma proposta...'} disabled={loading || isLimited} className={`w-full bg-white border border-black/10 rounded-full pl-6 pr-14 py-4 text-[15px] text-black placeholder-black/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)] outline-none focus:border-apple-blue/50 focus:shadow-[0_0_0_4px_rgba(0,102,204,0.1)] transition-all ${isLimited ? 'opacity-50' : ''}`} />
-                    <button onClick={() => sendMessage()} disabled={!input.trim() || loading || isLimited} className={`absolute right-2 top-2 bottom-2 aspect-square rounded-full flex items-center justify-center transition-all ${(!input.trim() || loading || isLimited) ? 'bg-black/5 text-black/30 cursor-not-allowed' : 'bg-apple-blue text-white shadow-md hover:scale-105 active:scale-95'}`}>
-                      <Icon.Send />
+                    <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()} placeholder={isLimited ? 'Faça upgrade para continuar...' : 'Pergunte ou peça uma proposta...'} disabled={loading || isLimited} className={`w-full bg-white border border-black/10 rounded-full pl-6 pr-14 py-4 text-[15px] text-black placeholder-black/40 shadow-[0_10px_40px_rgba(0,0,0,0.04)] outline-none focus:border-apple-blue/50 focus:shadow-[0_0_0_4px_rgba(0,102,204,0.1)] transition-all ${isLimited ? 'opacity-50' : ''}`} />
+                    <button onClick={() => sendMessage()} disabled={!input.trim() || loading || isLimited} className={`absolute right-2 top-2 bottom-2 aspect-square rounded-full flex items-center justify-center transition-all ${(!input.trim() || loading || isLimited) ? 'bg-black/5 text-black/30 cursor-not-allowed' : 'bg-apple-blue text-white shadow-lg shadow-apple-blue/20 hover:scale-105 active:scale-95 glow-btn'}`}>
+                      <Icon.Send size={18} />
                     </button>
                   </div>
                 </div>
@@ -597,8 +691,12 @@ export default function Dashboard() {
                 </div>
 
                 {trashedItems.conversations.length === 0 && trashedItems.proposals.length === 0 ? (
-                  <div className="text-center py-20 bg-white/50 rounded-3xl border border-dashed border-black/10">
-                    <p className="text-black/30 font-medium">Sua lixeira está vazia.</p>
+                  <div className="text-center py-32 bg-white/40 rounded-[40px] border border-dashed border-black/10 flex flex-col items-center">
+                    <div className="w-20 h-20 bg-black/5 rounded-full flex items-center justify-center text-black/10 mb-6">
+                      <Icon.Trash size={40} />
+                    </div>
+                    <h3 className="font-syne font-bold text-xl text-black/40 mb-2">Sua lixeira está vazia</h3>
+                    <p className="text-black/30 text-sm max-w-xs mx-auto">Conversas e propostas excluídas aparecerão aqui antes de serem removidas de vez.</p>
                   </div>
                 ) : (
                   <div className="space-y-8">
@@ -653,20 +751,31 @@ export default function Dashboard() {
                     { cat: 'Gravação (Apenas Manaus)', badge: true, items: [{ name: 'Gravação + edição de 1 Reels', price: 199, desc: 'Produção completa no seu local' }] },
                   ].map(s => (
                     <div key={s.cat}>
-                      <div className="flex items-center gap-3 mb-4">
-                        <h2 className="font-syne font-bold text-lg">{s.cat}</h2>
+                      <div className="flex items-center gap-3 mb-5">
+                        <h2 className="font-syne font-bold text-xl tracking-tight">{s.cat}</h2>
+                        {s.badge && (
+                          <span className="bg-apple-blue/10 text-apple-blue text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-apple-blue/10">
+                            Local
+                          </span>
+                        )}
                       </div>
-                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                         {s.items.map(item => (
-                          <div key={item.name} className="bg-white border border-black/5 p-5 rounded-3xl shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+                          <div key={item.name} className="bg-white border border-black/5 p-6 rounded-[32px] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group">
                             <div>
-                              <h3 className="font-semibold text-[15px]">{item.name}</h3>
-                              <p className="text-[13px] text-black/50 mt-1">{item.desc}</p>
+                              <div className="w-10 h-10 bg-apple-light text-apple-blue rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <Icon.Brush size={20} />
+                              </div>
+                              <h3 className="font-bold text-[16px] text-black mb-1">{item.name}</h3>
+                              <p className="text-[13px] text-black/50 leading-relaxed">{item.desc}</p>
                             </div>
-                            <div className="mt-6 flex items-end justify-between">
-                              <span className="font-bold text-lg text-apple-blue">R${item.price.toFixed(2).replace('.', ',')}</span>
-                              <a href={`https://wa.me/5592981417222?text=Olá! Interesse no serviço: *${item.name}* (R$${item.price.toFixed(2).replace('.', ',')})`} target="_blank" rel="noreferrer" className="bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366] hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1">
-                                <Icon.Whatsapp /> Contratar
+                            <div className="mt-8 flex items-center justify-between">
+                              <div className="flex flex-col">
+                                <span className="text-[10px] font-bold text-black/30 uppercase tracking-wider">A partir de</span>
+                                <span className="font-syne font-extrabold text-xl text-apple-blue">R${item.price.toFixed(2).replace('.', ',')}</span>
+                              </div>
+                              <a href={`https://wa.me/5592981417222?text=${encodeURIComponent(`Olá! Tenho interesse no serviço: *${item.name}* (R$${item.price.toFixed(2).replace('.', ',')})`)}`} target="_blank" rel="noreferrer" className="bg-[#25D366] text-white hover:bg-[#1fb355] px-4 py-2 rounded-2xl text-xs font-bold transition-all shadow-md shadow-[#25D366]/20 flex items-center gap-1.5 active:scale-95">
+                                <Icon.Whatsapp size={16} stroke="white" /> Contratar
                               </a>
                             </div>
                           </div>
@@ -714,13 +823,16 @@ export default function Dashboard() {
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setProfileOpen(false)} className="absolute inset-0 bg-black/20 backdrop-blur-md" />
             
-            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="bg-white/90 backdrop-blur-3xl border border-white rounded-[32px] w-full max-w-md shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
-              <div className="px-6 py-5 border-b border-black/5 flex items-center justify-between bg-white">
-                <h2 className="font-syne font-bold text-lg">Conta</h2>
-                <div className="flex bg-black/5 rounded-full p-1">
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="bg-white/80 backdrop-blur-3xl border border-white rounded-[40px] w-full max-w-md shadow-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="px-8 py-6 border-b border-black/5 flex flex-col gap-4 bg-white/50">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-syne font-bold text-2xl tracking-tight">Configurações</h2>
+                  <button onClick={() => setProfileOpen(false)} className="p-2 rounded-full hover:bg-black/5 text-black/40"><Icon.Plus size={20} className="rotate-45" /></button>
+                </div>
+                <div className="flex bg-black/5 rounded-2xl p-1">
                   {['main', 'plan', 'payment'].map(v => (
-                    <button key={v} onClick={() => setProfileView(v)} className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all ${profileView === v ? 'bg-white shadow-sm text-black' : 'text-black/40 hover:text-black'}`}>
-                      {v === 'main' ? 'Perfil' : v === 'plan' ? 'Plano' : 'Pgto'}
+                    <button key={v} onClick={() => setProfileView(v)} className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all ${profileView === v ? 'bg-white shadow-sm text-black' : 'text-black/40 hover:text-black'}`}>
+                      {v === 'main' ? 'Perfil' : v === 'plan' ? 'Plano' : 'Cobrança'}
                     </button>
                   ))}
                 </div>
