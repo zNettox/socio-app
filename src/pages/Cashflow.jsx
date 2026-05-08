@@ -28,20 +28,20 @@ const pageTransition = {
 function BarChart({ data, height = 80 }) {
   const max = Math.max(...data.map(d => Math.max(d.entrada, d.saida)), 1)
   return (
-    <div className="flex items-end gap-1 w-full" style={{ height }}>
+    <div className="flex items-end gap-2 w-full" style={{ height }}>
       {data.map((d, i) => (
-        <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
-          <div className="w-full flex gap-0.5 items-end" style={{ height: height - 16 }}>
+        <div key={i} className="flex-1 flex flex-col items-center gap-1">
+          <div className="w-full flex gap-0.5 items-end" style={{ height: height - 20 }}>
             <div
-              className="flex-1 rounded-t-sm bg-green-500/60 transition-all duration-500"
+              className="flex-1 rounded-t-sm bg-blue-500/80 transition-all duration-500"
               style={{ height: `${(d.entrada / max) * 100}%`, minHeight: d.entrada > 0 ? 2 : 0 }}
             />
             <div
-              className="flex-1 rounded-t-sm bg-red-400/60 transition-all duration-500"
+              className="flex-1 rounded-t-sm bg-red-400/80 transition-all duration-500"
               style={{ height: `${(d.saida / max) * 100}%`, minHeight: d.saida > 0 ? 2 : 0 }}
             />
           </div>
-          <span className="text-[9px] text-white/30">{d.label}</span>
+          <span className="text-[10px] text-black/40 font-medium">{d.label}</span>
         </div>
       ))}
     </div>
@@ -53,7 +53,7 @@ function DonutChart({ segments, size = 100 }) {
   const total = segments.reduce((s, seg) => s + seg.value, 0)
   if (total === 0) return (
     <div className="flex items-center justify-center" style={{ width: size, height: size }}>
-      <div className="rounded-full border-4 border-white/10" style={{ width: size * 0.8, height: size * 0.8 }} />
+      <div className="rounded-full border-4 border-black/5" style={{ width: size * 0.8, height: size * 0.8 }} />
     </div>
   )
   let offset = 0
@@ -73,13 +73,14 @@ function DonutChart({ segments, size = 100 }) {
             strokeDasharray={`${dash} ${gap}`}
             strokeDashoffset={-offset * circ}
             transform="rotate(-90 50 50)"
-            opacity="0.8"
+            opacity="0.9"
           />
         )
         offset += pct
         return el
       })}
-      <circle cx="50" cy="50" r="28" fill="#0a0a0a" />
+      {/* Central hole matching surface background */}
+      <circle cx="50" cy="50" r="28" fill="#FFFFFF" />
     </svg>
   )
 }
@@ -147,7 +148,7 @@ export default function Cashflow() {
   })
 
   // ── Category breakdown ──────────────────────────────────────────────────
-  const catColors = ['#BA7517', '#4ade80', '#60a5fa', '#f472b6', '#a78bfa', '#fb923c', '#34d399']
+  const catColors = ['#0066CC', '#34C759', '#FF3B30', '#AF52DE', '#FF9500', '#5AC8FA', '#FF2D55']
   const catData = filtered.filter(t => t.type === 'saida').reduce((acc, t) => {
     acc[t.category] = (acc[t.category] || 0) + Number(t.amount)
     return acc
@@ -203,51 +204,51 @@ export default function Cashflow() {
 
   // ── Sub-views ───────────────────────────────────────────────────────────
   const renderAdd = () => (
-    <motion.div key="add" {...pageTransition} className="p-5 max-w-lg mx-auto">
-      <div className="flex items-center gap-3 mb-6">
+    <motion.div key="add" {...pageTransition} className="p-6 max-w-lg mx-auto">
+      <div className="flex items-center gap-3 mb-8">
         <button onClick={() => { setView('dashboard'); setEditingTx(null); setForm({ type: 'entrada', description: '', amount: '', category: '', date: new Date().toISOString().split('T')[0], note: '' }) }}
-          className="text-white/40 hover:text-white transition-colors">
-          ← Voltar
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-black/5 shadow-sm text-black/50 hover:text-black transition-colors">
+          ←
         </button>
-        <h2 className="font-syne font-bold text-lg">{editingTx ? 'Editar' : 'Nova'} transação</h2>
+        <h2 className="font-syne font-bold text-2xl tracking-tight">{editingTx ? 'Editar' : 'Nova'} transação</h2>
       </div>
 
       {/* Type toggle */}
-      <div className="flex bg-white/[0.05] rounded-xl p-1 mb-5">
+      <div className="flex bg-black/5 rounded-full p-1 mb-6">
         {['entrada', 'saida'].map(t => (
           <button key={t} onClick={() => setForm(f => ({ ...f, type: t, category: '' }))}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 py-3 rounded-full text-sm font-bold transition-all shadow-sm ${
               form.type === t
-                ? t === 'entrada' ? 'bg-green-500/20 text-green-400' : 'bg-red-400/20 text-red-400'
-                : 'text-white/40'
+                ? t === 'entrada' ? 'bg-white text-blue-600' : 'bg-white text-red-500'
+                : 'text-black/40 hover:text-black'
             }`}>
             {t === 'entrada' ? '↑ Entrada' : '↓ Saída'}
           </button>
         ))}
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div>
-          <label className="text-xs text-white/40 mb-1.5 block">Descrição</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-black/40 mb-2 block">Descrição</label>
           <input className="input-field" placeholder="Ex: Escova progressiva — Cleusa"
             value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-xs text-white/40 mb-1.5 block">Valor (R$)</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-black/40 mb-2 block">Valor (R$)</label>
             <input className="input-field" type="number" placeholder="0,00" min="0" step="0.01"
               value={form.amount} onChange={e => setForm(f => ({ ...f, amount: e.target.value }))} />
           </div>
           <div>
-            <label className="text-xs text-white/40 mb-1.5 block">Data</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-black/40 mb-2 block">Data</label>
             <input className="input-field" type="date"
               value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
           </div>
         </div>
 
         <div>
-          <label className="text-xs text-white/40 mb-1.5 block">Categoria</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-black/40 mb-2 block">Categoria</label>
           <select className="input-field" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
             <option value="">Selecionar...</option>
             {CATEGORIES[form.type].map(c => <option key={c} value={c}>{c}</option>)}
@@ -255,13 +256,13 @@ export default function Cashflow() {
         </div>
 
         <div>
-          <label className="text-xs text-white/40 mb-1.5 block">Observação (opcional)</label>
+          <label className="text-xs font-bold uppercase tracking-wider text-black/40 mb-2 block">Observação (opcional)</label>
           <textarea className="input-field resize-none" rows={2} placeholder="Algum detalhe extra..."
             value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} />
         </div>
 
         <button onClick={saveTransaction} disabled={loading || !form.description || !form.amount || !form.category}
-          className="glow-btn bg-gradient-to-r from-[#BA7517] to-[#854F0B] text-white font-medium w-full rounded-xl disabled:opacity-40 mt-4 py-3.5 shadow-lg shadow-[#BA7517]/20">
+          className="btn-primary w-full mt-6 py-4 text-[15px] shadow-xl shadow-apple-blue/20 disabled:opacity-50 disabled:shadow-none">
           {loading ? 'Salvando...' : editingTx ? 'Salvar alterações' : `Registrar ${form.type === 'entrada' ? 'entrada' : 'saída'}`}
         </button>
       </div>
@@ -269,41 +270,41 @@ export default function Cashflow() {
   )
 
   const renderList = () => (
-    <motion.div key="list" {...pageTransition} className="p-5 max-w-2xl mx-auto">
-      <div className="flex items-center gap-3 mb-5">
-        <button onClick={() => setView('dashboard')} className="text-white/40 hover:text-white transition-colors">← Voltar</button>
-        <h2 className="font-syne font-bold text-lg">Todas as transações</h2>
+    <motion.div key="list" {...pageTransition} className="p-6 max-w-3xl mx-auto">
+      <div className="flex items-center gap-3 mb-8">
+        <button onClick={() => setView('dashboard')} className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-black/5 shadow-sm text-black/50 hover:text-black transition-colors">←</button>
+        <h2 className="font-syne font-bold text-2xl tracking-tight">Todas as transações</h2>
       </div>
       {filtered.length === 0 ? (
-        <div className="text-center py-16 text-white/30">Nenhuma transação no período selecionado.</div>
+        <div className="text-center py-20 bg-white rounded-3xl border border-black/5 shadow-sm text-black/40">Nenhuma transação no período selecionado.</div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {filtered.map(tx => (
             <motion.div key={tx.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="flex items-center gap-3 p-4 rounded-xl glass-card hover:bg-white/[0.04] transition-colors group">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                tx.type === 'entrada' ? 'bg-green-500/15' : 'bg-red-400/15'
+              className="flex items-center gap-4 p-5 rounded-3xl bg-white border border-black/5 shadow-sm hover:shadow-md transition-all group">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${
+                tx.type === 'entrada' ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-500'
               }`}>
-                <span className={`text-sm ${tx.type === 'entrada' ? 'text-green-400' : 'text-red-400'}`}>
+                <span className="text-lg font-bold">
                   {tx.type === 'entrada' ? '↑' : '↓'}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-white/80 truncate">{tx.description}</div>
-                <div className="text-xs text-white/30 mt-0.5">{tx.category} · {new Date(tx.date).toLocaleDateString('pt-BR')}</div>
-                {tx.note && <div className="text-xs text-white/25 mt-0.5 italic truncate">{tx.note}</div>}
+                <div className="text-[15px] font-semibold text-black truncate">{tx.description}</div>
+                <div className="text-xs text-black/40 mt-1 font-medium">{tx.category} · {new Date(tx.date).toLocaleDateString('pt-BR')}</div>
+                {tx.note && <div className="text-xs text-black/30 mt-1 italic truncate">{tx.note}</div>}
               </div>
-              <div className={`font-syne font-bold text-base flex-shrink-0 ${
-                tx.type === 'entrada' ? 'text-green-400' : 'text-red-400'
+              <div className={`font-syne font-bold text-lg flex-shrink-0 ${
+                tx.type === 'entrada' ? 'text-blue-600' : 'text-red-500'
               }`}>
                 {tx.type === 'saida' ? '-' : '+'}{fmt(tx.amount)}
               </div>
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => editTx(tx)} className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white/80 transition-colors">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10L9.5 2.5l2 2L6 12H2v-2z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/></svg>
+              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={() => editTx(tx)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-black/5 text-black/40 hover:text-black transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 14 14" fill="none"><path d="M2 10L9.5 2.5l2 2L6 12H2v-2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>
                 </button>
-                <button onClick={() => deleteTx(tx.id)} className="p-1.5 rounded-lg hover:bg-red-400/10 text-white/40 hover:text-red-400 transition-colors">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M5 4V2h4v2M5.5 6.5v4M8.5 6.5v4M3 4l.7 7.3A1 1 0 004.7 12h4.6a1 1 0 001-.7L11 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
+                <button onClick={() => deleteTx(tx.id)} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 text-black/40 hover:text-red-500 transition-colors">
+                  <svg width="16" height="16" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M5 4V2h4v2M5.5 6.5v4M8.5 6.5v4M3 4l.7 7.3A1 1 0 004.7 12h4.6a1 1 0 001-.7L11 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
                 </button>
               </div>
             </motion.div>
@@ -314,50 +315,52 @@ export default function Cashflow() {
   )
 
   const renderNotes = () => (
-    <motion.div key="notes" {...pageTransition} className="p-5 max-w-lg mx-auto">
-      <div className="flex items-center gap-3 mb-5">
-        <button onClick={() => setView('dashboard')} className="text-white/40 hover:text-white transition-colors">← Voltar</button>
-        <h2 className="font-syne font-bold text-lg">Anotações</h2>
+    <motion.div key="notes" {...pageTransition} className="p-6 max-w-2xl mx-auto">
+      <div className="flex items-center gap-3 mb-8">
+        <button onClick={() => setView('dashboard')} className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-black/5 shadow-sm text-black/50 hover:text-black transition-colors">←</button>
+        <h2 className="font-syne font-bold text-2xl tracking-tight">Anotações</h2>
       </div>
-      <div className="flex gap-2 mb-5">
-        <textarea className="input-field flex-1 resize-none" rows={2} placeholder="Escreva uma anotação... ex: falta pagar a energia essa semana"
+      <div className="flex gap-3 mb-8">
+        <textarea className="input-field flex-1 resize-none" rows={2} placeholder="O que você precisa lembrar?"
           value={noteText} onChange={e => setNoteText(e.target.value)} />
         <button onClick={saveNote} disabled={!noteText.trim()}
-          className="glow-btn bg-gradient-to-r from-[#BA7517] to-[#854F0B] text-white px-5 rounded-xl disabled:opacity-40 transition-colors self-stretch shadow-lg shadow-[#BA7517]/20">
-          +
+          className="btn-primary px-6 rounded-2xl disabled:opacity-50 self-stretch shadow-md">
+          Salvar
         </button>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {notes.map(n => (
           <motion.div key={n.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="flex items-start gap-3 p-4 rounded-xl glass-card group">
-            <div className="w-2 h-2 rounded-full bg-[#BA7517] mt-1.5 flex-shrink-0" />
-            <p className="flex-1 text-sm text-white/70 leading-relaxed">{n.text}</p>
-            <div className="flex flex-col items-end gap-1">
-              <span className="text-[10px] text-white/25">{n.createdAt?.toDate?.()?.toLocaleDateString('pt-BR')}</span>
+            className="flex items-start gap-4 p-5 rounded-3xl bg-white border border-black/5 shadow-sm group">
+            <div className="w-3 h-3 rounded-full bg-apple-blue mt-1.5 flex-shrink-0 shadow-[0_0_10px_rgba(0,102,204,0.4)]" />
+            <p className="flex-1 text-[15px] text-black/80 leading-relaxed font-medium">{n.text}</p>
+            <div className="flex flex-col items-end gap-2">
+              <span className="text-[11px] font-bold text-black/30">{n.createdAt?.toDate?.()?.toLocaleDateString('pt-BR')}</span>
               <button onClick={() => deleteNote(n.id)}
-                className="opacity-0 group-hover:opacity-100 text-white/30 hover:text-red-400 transition-all">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
+                className="opacity-0 group-hover:opacity-100 text-black/30 hover:text-red-500 transition-all">
+                <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
               </button>
             </div>
           </motion.div>
         ))}
-        {notes.length === 0 && <p className="text-center text-white/25 text-sm py-8">Nenhuma anotação ainda.</p>}
+        {notes.length === 0 && <div className="text-center bg-white border border-black/5 rounded-3xl text-black/40 text-[15px] py-12">Nenhuma anotação ainda.</div>}
       </div>
     </motion.div>
   )
 
   const renderDashboard = () => (
-    <motion.div key="dashboard" {...pageTransition} className="p-5 max-w-2xl mx-auto space-y-5">
-
+    <motion.div key="dashboard" {...pageTransition} className="p-6 md:p-10 max-w-5xl mx-auto space-y-8">
       {/* Filter */}
-      <div className="flex items-center justify-between">
-        <h2 className="font-syne font-bold text-lg">Caixa</h2>
-        <div className="flex bg-white/[0.05] rounded-lg p-0.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="font-syne font-bold text-3xl mb-1 tracking-tight">Fluxo de Caixa</h1>
+          <p className="text-sm text-black/50">Acompanhe suas finanças de forma simples.</p>
+        </div>
+        <div className="flex bg-white rounded-full p-1 shadow-sm border border-black/5">
           {[['semana', '7d'], ['mes', 'Mês'], ['ano', 'Ano'], ['tudo', 'Tudo']].map(([val, label]) => (
             <button key={val} onClick={() => setFilter(val)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                filter === val ? 'bg-[#BA7517] text-white' : 'text-white/40 hover:text-white/70'
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all ${
+                filter === val ? 'bg-black text-white shadow-md' : 'text-black/50 hover:text-black'
               }`}>
               {label}
             </button>
@@ -366,105 +369,114 @@ export default function Cashflow() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { label: 'Entradas', value: totalEntrada, color: 'text-green-400', bg: 'bg-green-500/[0.07] border-green-500/20' },
-          { label: 'Saídas', value: totalSaida, color: 'text-red-400', bg: 'bg-red-400/[0.07] border-red-400/20' },
-          { label: 'Saldo', value: saldo, color: saldo >= 0 ? 'text-[#FAC775]' : 'text-red-400', bg: 'bg-[#BA7517]/[0.07] border-[#BA7517]/20' },
+          { label: 'Total Entradas', value: totalEntrada, color: 'text-blue-600', icon: '↑' },
+          { label: 'Total Saídas', value: totalSaida, color: 'text-red-500', icon: '↓' },
+          { label: 'Saldo Líquido', value: saldo, color: saldo >= 0 ? 'text-black' : 'text-red-500', icon: saldo >= 0 ? '+' : '-' },
         ].map(card => (
-          <div key={card.label} className={`rounded-xl border p-4 ${card.bg}`}>
-            <div className="text-xs text-white/40 mb-1">{card.label}</div>
-            <div className={`font-syne font-black text-base leading-tight ${card.color}`}>
+          <div key={card.label} className="bg-white border border-black/5 rounded-[32px] p-6 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-2 mb-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm bg-black/5 ${card.color}`}>{card.icon}</div>
+              <div className="text-xs font-bold text-black/40 uppercase tracking-wider">{card.label}</div>
+            </div>
+            <div className={`font-syne font-extrabold text-3xl tracking-tight truncate ${card.color}`}>
               {fmt(card.value)}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Bar chart */}
-      <div className="glass-card p-6 rounded-2xl">
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-sm font-medium text-white/70">Últimos 6 meses</div>
-          <div className="flex items-center gap-3 text-xs text-white/40">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-green-500/60" />Entradas</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-red-400/60" />Saídas</span>
-          </div>
-        </div>
-        <BarChart data={chartData} height={100} />
-      </div>
-
-      {/* Category donut */}
-      {catSegments.length > 0 && (
-        <div className="glass-card p-6 rounded-2xl">
-          <div className="text-sm font-medium text-white/70 mb-4">Saídas por categoria</div>
-          <div className="flex items-center gap-6">
-            <DonutChart segments={catSegments} size={100} />
-            <div className="flex-1 space-y-2">
-              {catSegments.map((seg, i) => (
-                <div key={i} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full" style={{ background: seg.color }} />
-                    <span className="text-xs text-white/60">{seg.name}</span>
-                  </div>
-                  <span className="text-xs font-medium text-white/70">{fmt(seg.value)}</span>
-                </div>
-              ))}
+      <div className="grid md:grid-cols-2 gap-8">
+        {/* Bar chart */}
+        <div className="bg-white border border-black/5 p-8 rounded-[32px] shadow-sm">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="font-syne font-bold text-lg">Últimos 6 meses</h3>
+            <div className="flex items-center gap-4 text-xs font-bold text-black/40">
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-blue-500" />Entradas</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-red-400" />Saídas</span>
             </div>
           </div>
+          <BarChart data={chartData} height={140} />
         </div>
-      )}
 
-      {/* Recent transactions */}
-      <div className="glass-card p-6 rounded-2xl">
-        <div className="flex items-center justify-between mb-4">
-          <div className="text-sm font-medium text-white/70">Últimas transações</div>
-          <button onClick={() => setView('list')} className="text-xs text-[#BA7517] hover:text-[#FAC775] transition-colors">
-            Ver todas →
-          </button>
-        </div>
-        {filtered.slice(0, 5).length === 0 ? (
-          <p className="text-center text-white/25 text-sm py-4">Nenhuma transação ainda.</p>
-        ) : (
-          <div className="space-y-2">
-            {filtered.slice(0, 5).map(tx => (
-              <div key={tx.id} className="flex items-center gap-3">
-                <div className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 ${
-                  tx.type === 'entrada' ? 'bg-green-500/15' : 'bg-red-400/15'
-                }`}>
-                  <span className={`text-xs ${tx.type === 'entrada' ? 'text-green-400' : 'text-red-400'}`}>
-                    {tx.type === 'entrada' ? '↑' : '↓'}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs text-white/70 truncate">{tx.description}</div>
-                  <div className="text-[10px] text-white/30">{new Date(tx.date).toLocaleDateString('pt-BR')}</div>
-                </div>
-                <span className={`text-xs font-medium flex-shrink-0 ${tx.type === 'entrada' ? 'text-green-400' : 'text-red-400'}`}>
-                  {tx.type === 'saida' ? '-' : '+'}{fmt(tx.amount)}
-                </span>
+        {/* Category donut */}
+        {catSegments.length > 0 ? (
+          <div className="bg-white border border-black/5 p-8 rounded-[32px] shadow-sm flex flex-col">
+            <h3 className="font-syne font-bold text-lg mb-6">Saídas por categoria</h3>
+            <div className="flex-1 flex items-center gap-8">
+              <DonutChart segments={catSegments} size={140} />
+              <div className="flex-1 space-y-3">
+                {catSegments.map((seg, i) => (
+                  <div key={i} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full shadow-sm" style={{ background: seg.color }} />
+                      <span className="text-sm font-medium text-black/70">{seg.name}</span>
+                    </div>
+                    <span className="text-sm font-bold text-black">{fmt(seg.value)}</span>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white border border-black/5 p-8 rounded-[32px] shadow-sm flex items-center justify-center">
+            <span className="text-black/30 font-medium">Sem dados de saída para o gráfico.</span>
           </div>
         )}
       </div>
 
-      {/* Action buttons */}
-      <div className="grid grid-cols-3 gap-3">
-        <button onClick={() => { setForm(f => ({ ...f, type: 'entrada' })); setView('add') }}
-          className="flex flex-col items-center gap-2 p-4 rounded-xl border border-green-500/20 bg-green-500/[0.05] hover:bg-green-500/[0.1] transition-colors">
-          <span className="text-xl">↑</span>
-          <span className="text-xs text-green-400 font-medium">Entrada</span>
-        </button>
-        <button onClick={() => { setForm(f => ({ ...f, type: 'saida' })); setView('add') }}
-          className="flex flex-col items-center gap-2 p-4 rounded-xl border border-red-400/20 bg-red-400/[0.05] hover:bg-red-400/[0.1] transition-colors">
-          <span className="text-xl">↓</span>
-          <span className="text-xs text-red-400 font-medium">Saída</span>
-        </button>
-        <button onClick={() => setView('notes')}
-          className="flex flex-col items-center gap-2 p-5 rounded-2xl glass-card hover:bg-white/[0.05] transition-colors">
-          <span className="text-xl">📝</span>
-          <span className="text-xs text-white/50 font-medium">Notas</span>
-        </button>
+      <div className="grid md:grid-cols-3 gap-8">
+        {/* Recent transactions */}
+        <div className="md:col-span-2 bg-white border border-black/5 p-8 rounded-[32px] shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-syne font-bold text-lg">Últimas transações</h3>
+            <button onClick={() => setView('list')} className="text-sm font-bold text-apple-blue hover:text-apple-dark transition-colors">
+              Ver todas →
+            </button>
+          </div>
+          {filtered.slice(0, 4).length === 0 ? (
+            <div className="text-center bg-black/5 rounded-2xl py-8 text-sm font-medium text-black/40">Nenhuma transação registrada.</div>
+          ) : (
+            <div className="space-y-4">
+              {filtered.slice(0, 4).map(tx => (
+                <div key={tx.id} className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    tx.type === 'entrada' ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-500'
+                  }`}>
+                    <span className="text-sm font-bold">{tx.type === 'entrada' ? '↑' : '↓'}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[15px] font-semibold text-black truncate">{tx.description}</div>
+                    <div className="text-[11px] font-medium text-black/40 uppercase tracking-wider mt-1">{tx.category} · {new Date(tx.date).toLocaleDateString('pt-BR')}</div>
+                  </div>
+                  <span className={`text-[15px] font-bold flex-shrink-0 ${tx.type === 'entrada' ? 'text-blue-600' : 'text-red-500'}`}>
+                    {tx.type === 'saida' ? '-' : '+'}{fmt(tx.amount)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex flex-col gap-4">
+          <button onClick={() => { setForm(f => ({ ...f, type: 'entrada' })); setView('add') }}
+            className="flex-1 flex items-center gap-4 p-6 rounded-[32px] bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg hover:-translate-y-1 transition-all group">
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-xl font-bold group-hover:scale-110 transition-transform">↑</div>
+            <span className="font-syne font-bold text-lg">Nova Entrada</span>
+          </button>
+          <button onClick={() => { setForm(f => ({ ...f, type: 'saida' })); setView('add') }}
+            className="flex-1 flex items-center gap-4 p-6 rounded-[32px] bg-white border border-black/5 hover:border-red-500/30 hover:shadow-lg hover:-translate-y-1 transition-all group">
+            <div className="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center text-xl font-bold group-hover:scale-110 transition-transform">↓</div>
+            <span className="font-syne font-bold text-lg text-black">Nova Saída</span>
+          </button>
+          <button onClick={() => setView('notes')}
+            className="flex-1 flex items-center gap-4 p-6 rounded-[32px] bg-white border border-black/5 hover:shadow-lg hover:-translate-y-1 transition-all group">
+            <div className="w-12 h-12 bg-black/5 text-black rounded-full flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📝</div>
+            <span className="font-syne font-bold text-lg text-black">Anotações</span>
+          </button>
+        </div>
       </div>
     </motion.div>
   )

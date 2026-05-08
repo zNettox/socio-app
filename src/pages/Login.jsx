@@ -11,18 +11,17 @@ import {
 } from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
 import { auth, db } from '../firebase'
-import { slideUp, fadeIn } from '../utils/motion'
+import { slideUp } from '../utils/motion'
 
 const provider = new GoogleAuthProvider()
 
 const EyeIcon = ({ open }) => open ? (
-  <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
-    <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" stroke="currentColor" strokeWidth="1.3"/>
-    <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.3"/>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
   </svg>
 ) : (
-  <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
-    <path d="M1 1l14 14M6.5 6.6A2.5 2.5 0 0010 10M4.5 4.5C2.5 5.8 1 8 1 8s2.5 5 7 5c1.6 0 3-.5 4.2-1.3M12 11C13.7 9.8 15 8 15 8s-2.5-5-7-5c-.9 0-1.7.2-2.4.4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
   </svg>
 )
 
@@ -87,118 +86,95 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-[#060606] flex items-center justify-center p-6 font-dm relative overflow-hidden">
-      <motion.div 
-        animate={{ 
-          background: [
-            'radial-gradient(circle at 10% 20%, rgba(186,117,23,0.08) 0%, transparent 50%)',
-            'radial-gradient(circle at 90% 80%, rgba(186,117,23,0.08) 0%, transparent 50%)',
-            'radial-gradient(circle at 10% 20%, rgba(186,117,23,0.08) 0%, transparent 50%)'
-          ] 
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-        className="absolute inset-0 z-0 pointer-events-none"
-      />
+    <div className="min-h-screen bg-[#F5F5F7] flex flex-col items-center justify-center p-6 font-dm relative overflow-hidden">
+      {/* Background ambient light */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-apple-blue/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-apple-indigo/10 blur-[120px] rounded-full pointer-events-none" />
 
-      <motion.div 
-        variants={slideUp}
-        initial="hidden"
-        animate="visible"
-        className="w-full max-w-[420px] relative z-10"
+      <motion.button 
+        initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}
+        onClick={() => navigate('/')} 
+        className="font-syne font-bold text-3xl text-black bg-none border-none cursor-pointer mb-8 relative z-20 hover:scale-105 transition-transform"
       >
-        <button 
-          onClick={() => navigate('/')} 
-          className="font-syne font-extrabold text-2xl text-white bg-none border-none cursor-pointer mb-10 block transition-transform hover:scale-105 origin-left"
-        >
-          sócio<span className="text-[#BA7517]">.</span>
-        </button>
+        sócio<span className="text-apple-blue">.</span>
+      </motion.button>
 
-        <div className="glass-panel p-8 rounded-3xl shadow-2xl relative overflow-hidden border border-white/10">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#BA7517]/50 to-transparent" />
-          
+      <motion.div 
+        variants={slideUp} initial="hidden" animate="visible"
+        className="w-full max-w-[440px] relative z-10"
+      >
+        <div className="glass-card p-8 md:p-10 !rounded-[40px]">
           <AnimatePresence mode="wait">
             <motion.div 
               key={mode} 
-              initial={{ opacity: 0, x: 20 }} 
-              animate={{ opacity: 1, x: 0 }} 
-              exit={{ opacity: 0, x: -20 }} 
+              initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} 
               transition={{ duration: 0.25, ease: 'easeInOut' }}
             >
-              <h2 className="font-syne font-extrabold text-3xl tracking-tight text-white mb-2">
-                {mode === 'login' ? 'Bem-vindo de volta' : mode === 'register' ? 'Criar conta' : 'Redefinir senha'}
+              <h2 className="font-syne font-bold text-3xl tracking-tight text-black mb-2 text-center">
+                {mode === 'login' ? 'Bem-vindo de volta' : mode === 'register' ? 'Criar conta grátis' : 'Redefinir senha'}
               </h2>
-              <p className="text-sm text-white/40 mb-8">
-                {mode === 'login' ? 'Entre na sua conta para continuar' : mode === 'register' ? 'Comece grátis e escolha o plano depois' : 'Enviaremos um link seguro para o seu email'}
+              <p className="text-[15px] text-black/50 mb-8 text-center font-medium">
+                {mode === 'login' ? 'Entre na sua conta para continuar' : mode === 'register' ? 'Comece a usar o Sócio em segundos' : 'Enviaremos um link de recuperação'}
               </p>
 
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <div>
-                  <label className="text-xs text-white/40 font-medium tracking-wider mb-2 block">EMAIL</label>
                   <input 
                     type="email" 
-                    placeholder="seu@email.com" 
+                    placeholder="E-mail" 
                     value={email} 
                     onChange={e => setEmail(e.target.value)} 
                     required 
-                    className="input-field"
+                    className="input-field shadow-sm"
                   />
                 </div>
 
                 {mode !== 'reset' && (
-                  <div>
-                    <label className="text-xs text-white/40 font-medium tracking-wider mb-2 block">SENHA</label>
-                    <div className="relative">
-                      <input 
-                        type={showPass ? 'text' : 'password'} 
-                        placeholder="Mínimo 6 caracteres" 
-                        value={password} 
-                        onChange={e => setPassword(e.target.value)} 
-                        required minLength={6} 
-                        className="input-field pr-12"
-                      />
-                      <button 
-                        type="button" 
-                        onClick={() => setShowPass(!showPass)} 
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 p-1 transition-colors"
-                      >
-                        <EyeIcon open={showPass} />
-                      </button>
-                    </div>
+                  <div className="relative">
+                    <input 
+                      type={showPass ? 'text' : 'password'} 
+                      placeholder="Senha (mín. 6 caracteres)" 
+                      value={password} 
+                      onChange={e => setPassword(e.target.value)} 
+                      required minLength={6} 
+                      className="input-field pr-12 shadow-sm"
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowPass(!showPass)} 
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-black/30 hover:text-black/60 transition-colors"
+                    >
+                      <EyeIcon open={showPass} />
+                    </button>
                   </div>
                 )}
 
                 <AnimatePresence>
                   {error && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                      <div className="text-sm text-red-400 p-3 rounded-xl bg-red-400/10 border border-red-400/20">{error}</div>
+                      <div className="text-sm font-medium text-red-600 p-3 rounded-2xl bg-red-50 border border-red-100">{error}</div>
                     </motion.div>
                   )}
                   {success && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                      <div className="text-sm text-green-400 p-3 rounded-xl bg-green-400/10 border border-green-400/20">{success}</div>
+                      <div className="text-sm font-medium text-green-600 p-3 rounded-2xl bg-green-50 border border-green-100">{success}</div>
                     </motion.div>
                   )}
                 </AnimatePresence>
-
-                {mode === 'register' && (
-                  <div className="text-xs text-white/30 p-3 rounded-xl bg-white/5 border border-white/5">
-                    Enviaremos um email de verificação após o cadastro para garantir sua segurança.
-                  </div>
-                )}
 
                 <motion.button 
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit" 
                   disabled={loading} 
-                  className={`w-full py-3.5 mt-2 rounded-xl font-medium text-sm transition-all duration-300 ${loading ? 'opacity-60 cursor-not-allowed' : 'glow-btn'} bg-gradient-to-r from-[#BA7517] to-[#854F0B] text-white shadow-lg shadow-[#BA7517]/20`}
+                  className={`btn-primary w-full mt-2 text-[15px] ${loading ? 'opacity-50 cursor-not-allowed shadow-none' : ''}`}
                 >
                   {loading ? 'Processando...' : mode === 'login' ? 'Entrar no painel' : mode === 'register' ? 'Criar conta agora →' : 'Enviar link de recuperação'}
                 </motion.button>
 
                 {mode === 'login' && (
-                  <div className="text-center mt-[-4px]">
-                    <button type="button" onClick={() => { setMode('reset'); setError(''); setSuccess('') }} className="text-xs text-white/30 hover:text-white/60 transition-colors">
+                  <div className="text-center mt-2">
+                    <button type="button" onClick={() => { setMode('reset'); setError(''); setSuccess('') }} className="text-sm font-semibold text-black/40 hover:text-apple-blue transition-colors">
                       Esqueci minha senha
                     </button>
                   </div>
@@ -208,18 +184,18 @@ export default function Login() {
               {mode !== 'reset' && (
                 <>
                   <div className="flex items-center gap-4 my-6 opacity-40">
-                    <div className="flex-1 h-px bg-white/20" />
-                    <span className="text-xs text-white">ou</span>
-                    <div className="flex-1 h-px bg-white/20" />
+                    <div className="flex-1 h-px bg-black" />
+                    <span className="text-xs font-bold uppercase text-black">ou</span>
+                    <div className="flex-1 h-px bg-black" />
                   </div>
                   <motion.button 
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleGoogle} 
                     disabled={loading}
-                    className="w-full flex items-center justify-center gap-3 p-3.5 rounded-xl bg-transparent border border-white/10 text-white/70 text-sm hover:bg-white/5 hover:text-white transition-all duration-300 disabled:opacity-60"
+                    className="w-full flex items-center justify-center gap-3 p-4 rounded-full bg-white border border-black/10 text-black font-semibold shadow-sm hover:shadow-md transition-all disabled:opacity-50"
                   >
-                    <svg width="18" height="18" viewBox="0 0 18 18">
+                    <svg width="20" height="20" viewBox="0 0 18 18">
                       <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
                       <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
                       <path d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
@@ -230,13 +206,13 @@ export default function Login() {
                 </>
               )}
 
-              <div className="text-center mt-8 text-sm text-white/30">
+              <div className="text-center mt-8 text-sm font-medium text-black/40">
                 {mode === 'reset' ? (
-                  <button onClick={() => { setMode('login'); setError(''); setSuccess('') }} className="text-[#BA7517] hover:text-[#D4A373] transition-colors">← Voltar para o login</button>
+                  <button onClick={() => { setMode('login'); setError(''); setSuccess('') }} className="text-apple-blue hover:text-apple-dark transition-colors">← Voltar para o login</button>
                 ) : mode === 'login' ? (
-                  <>Não tem conta?{' '}<button onClick={() => { setMode('register'); setError('') }} className="text-[#BA7517] hover:text-[#D4A373] transition-colors font-medium">Criar agora</button></>
+                  <>Não tem conta?{' '}<button onClick={() => { setMode('register'); setError('') }} className="text-apple-blue hover:text-apple-dark transition-colors">Criar agora</button></>
                 ) : (
-                  <>Já tem conta?{' '}<button onClick={() => { setMode('login'); setError('') }} className="text-[#BA7517] hover:text-[#D4A373] transition-colors font-medium">Entrar</button></>
+                  <>Já tem conta?{' '}<button onClick={() => { setMode('login'); setError('') }} className="text-apple-blue hover:text-apple-dark transition-colors">Entrar</button></>
                 )}
               </div>
             </motion.div>
