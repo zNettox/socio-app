@@ -26,8 +26,8 @@ const Icon = {
   Logout: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
   Check: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
   Download: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
-  Trash: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>,
-  Whatsapp: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+  Trash: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>,
+  Restore: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>,
   SocioMark: ({ size = 28 }) => <svg width={size} height={size} viewBox="0 0 64 64" fill="none"><text x="8" y="48" fontSize="52" fontWeight="800" fill="#1D1D1F" fontFamily="'Syne', sans-serif">S</text><circle cx="46" cy="16" r="6" fill="#0066CC"/></svg>,
 }
 
@@ -180,6 +180,7 @@ const TABS = [
   { id: 'proposals', label: 'Propostas', Icon: Icon.File, proOnly: true },
   { id: 'cashflow', label: 'Caixa', Icon: Icon.Cash, proOnly: true },
   { id: 'services', label: 'Serviços', Icon: Icon.Brush },
+  { id: 'trash', label: 'Lixeira', Icon: Icon.Trash },
   { id: 'support', label: 'Suporte', Icon: Icon.Support },
 ]
 
@@ -223,12 +224,22 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) return
-    const q = query(collection(db, 'users', user.uid, 'conversations'), orderBy('updatedAt', 'desc'))
+    const q = query(collection(db, 'users', user.uid, 'conversations'), where('status', '!=', 'trash'), orderBy('status'), orderBy('updatedAt', 'desc'))
     return onSnapshot(q, snap => {
       const convs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       setConversations(convs)
       if (!activeConvId && convs.length > 0) setActiveConvId(convs[0].id)
     })
+  }, [])
+
+  const [trashedItems, setTrashedItems] = useState({ conversations: [], proposals: [] })
+  useEffect(() => {
+    if (!user) return
+    const q1 = query(collection(db, 'users', user.uid, 'conversations'), where('status', '==', 'trash'))
+    const q2 = query(collection(db, 'users', user.uid, 'proposals'), where('status', '==', 'trash'))
+    const un1 = onSnapshot(q1, snap => setTrashedItems(prev => ({ ...prev, conversations: snap.docs.map(d => ({ id: d.id, ...d.data(), type: 'conv' })) })))
+    const un2 = onSnapshot(q2, snap => setTrashedItems(prev => ({ ...prev, proposals: snap.docs.map(d => ({ id: d.id, ...d.data(), type: 'prop' })) })))
+    return () => { un1(); un2() }
   }, [])
 
   useEffect(() => {
@@ -239,7 +250,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) return
-    const q = query(collection(db, 'users', user.uid, 'proposals'), orderBy('createdAt', 'desc'))
+    const q = query(collection(db, 'users', user.uid, 'proposals'), where('status', '!=', 'trash'), orderBy('status'), orderBy('createdAt', 'desc'))
     return onSnapshot(q, snap => setProposals(snap.docs.map(d => ({ id: d.id, ...d.data() }))))
   }, [])
 
@@ -247,8 +258,40 @@ export default function Dashboard() {
 
   const newConv = async () => {
     playSound('click')
-    const ref = await addDoc(collection(db, 'users', user.uid, 'conversations'), { title: 'Nova conversa', createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
+    const ref = await addDoc(collection(db, 'users', user.uid, 'conversations'), { title: 'Nova conversa', createdAt: serverTimestamp(), updatedAt: serverTimestamp(), status: 'active' })
     setActiveConvId(ref.id); setMessages([]); setActiveTab('chat'); setSidebarOpen(false)
+  }
+
+  const moveToTrash = async (id, type) => {
+    playSound('click')
+    const path = type === 'conv' ? 'conversations' : 'proposals'
+    await updateDoc(doc(db, 'users', user.uid, path, id), { status: 'trash', deletedAt: serverTimestamp() })
+    if (type === 'conv' && id === activeConvId) setActiveConvId(null)
+  }
+
+  const restoreFromTrash = async (id, type) => {
+    playSound('success')
+    const path = type === 'conv' ? 'conversations' : 'proposals'
+    await updateDoc(doc(db, 'users', user.uid, path, id), { status: 'active', deletedAt: null })
+  }
+
+  const permanentDelete = async (id, type) => {
+    playSound('click')
+    const { deleteDoc } = await import('firebase/firestore')
+    const path = type === 'conv' ? 'conversations' : 'proposals'
+    await deleteDoc(doc(db, 'users', user.uid, path, id))
+  }
+
+  const saveProposalFromChat = async (msg) => {
+    playSound('success')
+    await addDoc(collection(db, 'users', user.uid, 'proposals'), { 
+      title: 'Proposta ' + new Date().toLocaleDateString('pt-BR'), 
+      content: msg.content, 
+      createdAt: serverTimestamp(), 
+      businessName: userData?.businessName,
+      status: 'active'
+    })
+    setActiveTab('proposals')
   }
 
   const sendMessage = async (text = input) => {
@@ -271,10 +314,6 @@ export default function Dashboard() {
       const reply = data.reply || 'Desculpe, não consegui processar sua mensagem.'
       playSound('receive')
       await addDoc(collection(db, 'users', user.uid, 'conversations', convId, 'messages'), { role: 'assistant', content: reply, createdAt: serverTimestamp() })
-      if (reply.toLowerCase().includes('proposta') && reply.length > 200) {
-        await addDoc(collection(db, 'users', user.uid, 'proposals'), { title: text.slice(0, 50), content: reply, createdAt: serverTimestamp(), businessName: userData?.businessName })
-        playSound('success')
-      }
     } catch {
       await addDoc(collection(db, 'users', user.uid, 'conversations', convId, 'messages'), { role: 'assistant', content: 'Erro de conexão. Tente novamente.', createdAt: serverTimestamp() })
     }
@@ -295,10 +334,17 @@ export default function Dashboard() {
 
   const handlePhoto = (e) => {
     const file = e.target.files?.[0]; if (!file) return
+    if (file.size > 800000) return alert('A imagem é muito grande. Escolha uma foto menor que 800KB.')
     const reader = new FileReader()
     reader.onload = async (ev) => {
       const url = ev.target.result; setProfilePhoto(url)
-      await updateDoc(doc(db, 'users', user.uid), { profilePhotoUrl: url })
+      try {
+        await updateDoc(doc(db, 'users', user.uid), { profilePhotoUrl: url })
+        alert('Foto atualizada com sucesso!')
+      } catch (err) {
+        console.error(err)
+        alert('Erro ao salvar foto no banco de dados.')
+      }
     }
     reader.readAsDataURL(file)
   }
@@ -308,7 +354,7 @@ export default function Dashboard() {
   const QUICK = ['Quanto devo cobrar pelo meu serviço?', 'Cria uma proposta profissional', 'Ideia de promoção para esta semana']
 
   return (
-    <div className="flex flex-col h-screen bg-[#F5F5F7] font-dm overflow-hidden selection:bg-apple-blue/20">
+    <div className="flex flex-col h-[100dvh] bg-[#F5F5F7] font-dm overflow-hidden selection:bg-apple-blue/20">
       
       {/* ── TOP HEADER ─────────────────────────────────────────────────── */}
       <header className="h-[64px] flex-shrink-0 flex items-center justify-between px-4 lg:px-6 bg-white/70 backdrop-blur-3xl border-b border-black/5 z-30 sticky top-0">
@@ -386,9 +432,14 @@ export default function Dashboard() {
             <div className="px-3 pt-6 pb-2 text-xs font-bold text-black/30 uppercase tracking-wider">Histórico</div>
             {conversations.length === 0 && <div className="px-3 text-sm text-black/30">Nenhuma conversa</div>}
             {conversations.map(c => (
-              <button key={c.id} onClick={() => { setActiveConvId(c.id); setSidebarOpen(false); setActiveTab('chat'); playSound('click') }} className={`w-full text-left px-3 py-2 rounded-lg text-sm truncate transition-colors ${activeConvId === c.id && activeTab === 'chat' ? 'bg-black/5 text-black font-medium' : 'text-black/50 hover:bg-black/5'}`}>
-                {c.title || 'Nova conversa'}
-              </button>
+              <div key={c.id} className="group relative">
+                <button onClick={() => { setActiveConvId(c.id); setSidebarOpen(false); setActiveTab('chat'); playSound('click') }} className={`w-full text-left px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all truncate pr-10 ${activeConvId === c.id && activeTab === 'chat' ? 'bg-black/5 text-black' : 'text-black/50 hover:bg-black/5 hover:text-black'}`}>
+                  {c.title || 'Nova conversa'}
+                </button>
+                <button onClick={() => moveToTrash(c.id, 'conv')} className="absolute right-2 top-2 p-1.5 text-black/10 hover:text-red-500 rounded-lg opacity-0 group-hover:opacity-100 transition-all">
+                  <Icon.Trash />
+                </button>
+              </div>
             ))}
           </div>
 
@@ -441,6 +492,11 @@ export default function Dashboard() {
                         <div className={`p-4 text-[14px] leading-relaxed shadow-sm ${msg.role === 'assistant' ? 'bg-white border border-black/5 text-black rounded-[20px_20px_20px_4px]' : 'bg-apple-blue text-white rounded-[20px_20px_4px_20px]'}`}>
                           {msg.role === 'assistant' ? renderMarkdown(msg.content) : msg.content}
                         </div>
+                        {msg.role === 'assistant' && msg.content.includes('PROPOSTA COMERCIAL') && (
+                          <button onClick={() => saveProposalFromChat(msg)} className="mt-2 flex items-center gap-1.5 text-[11px] font-bold text-apple-blue bg-white px-3 py-1.5 rounded-full border border-apple-blue/10 shadow-sm hover:bg-apple-blue hover:text-white transition-all">
+                            <Icon.File /> Salvar como proposta oficial
+                          </button>
+                        )}
                       </div>
                     </motion.div>
                   ))}
@@ -490,22 +546,25 @@ export default function Dashboard() {
                         <button onClick={() => tab('chat')} className="text-sm font-semibold text-apple-blue hover:text-apple-dark">Ir para o assistente →</button>
                       </div>
                     ) : (
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        {proposals.map((p, i) => (
-                          <motion.div key={p.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }} className="bg-white border border-black/5 p-5 rounded-3xl shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between h-40">
-                            <div className="flex gap-4 items-start">
-                              <div className="w-12 h-12 bg-apple-light text-apple-blue rounded-xl flex items-center justify-center shrink-0"><Icon.File /></div>
-                              <div>
-                                <h4 className="font-semibold text-sm line-clamp-2 leading-snug">{p.title}</h4>
-                                <p className="text-xs text-black/40 mt-1">{p.createdAt?.toDate?.()?.toLocaleDateString('pt-BR') || 'Hoje'}</p>
-                              </div>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {proposals.map((p, i) => (
+                        <motion.div key={p.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05 }} className="bg-white border border-black/5 p-5 rounded-3xl shadow-sm hover:shadow-md transition-shadow group flex flex-col justify-between relative min-h-[160px]">
+                          <button onClick={() => moveToTrash(p.id, 'prop')} className="absolute top-4 right-4 p-2 text-black/10 hover:text-red-500 hover:bg-red-50 transition-all rounded-full opacity-0 group-hover:opacity-100">
+                            <Icon.Trash />
+                          </button>
+                          <div className="flex gap-4 items-start mb-4">
+                            <div className="w-12 h-12 bg-apple-light text-apple-blue rounded-xl flex items-center justify-center shrink-0"><Icon.File /></div>
+                            <div className="pr-6">
+                              <h4 className="font-semibold text-sm line-clamp-2 leading-snug">{p.title}</h4>
+                              <p className="text-xs text-black/40 mt-1">{p.createdAt?.toDate?.()?.toLocaleDateString('pt-BR') || 'Hoje'}</p>
                             </div>
-                            <button onClick={() => downloadPDF(p)} className="w-full mt-4 flex items-center justify-center gap-2 bg-black/5 hover:bg-apple-blue hover:text-white text-black/70 text-sm font-medium py-2.5 rounded-xl transition-colors">
-                              <Icon.Download /> Baixar PDF
-                            </button>
-                          </motion.div>
-                        ))}
-                      </div>
+                          </div>
+                          <button onClick={() => downloadPDF(p)} className="w-full flex items-center justify-center gap-2 bg-black/5 hover:bg-apple-blue hover:text-white text-black/70 text-sm font-medium py-2.5 rounded-xl transition-colors">
+                            <Icon.Download /> Baixar PDF
+                          </button>
+                        </motion.div>
+                      ))}
+                    </div>
                     )}
                   </>
                 )}
@@ -524,6 +583,57 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <Cashflow />
+                )}
+              </motion.div>
+            )}
+
+            {/* TRASH */}
+            {activeTab === 'trash' && (
+              <motion.div key="trash" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex-1 overflow-y-auto p-6 md:p-10 max-w-5xl mx-auto w-full">
+                <div className="mb-10">
+                  <h1 className="font-syne font-bold text-3xl mb-2 tracking-tight">Lixeira</h1>
+                  <p className="text-black/50 text-sm">Itens aqui serão removidos permanentemente apenas quando você excluir de vez.</p>
+                </div>
+
+                {trashedItems.conversations.length === 0 && trashedItems.proposals.length === 0 ? (
+                  <div className="text-center py-20 bg-white/50 rounded-3xl border border-dashed border-black/10">
+                    <p className="text-black/30 font-medium">Sua lixeira está vazia.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    {trashedItems.conversations.length > 0 && (
+                      <div>
+                        <h3 className="text-xs font-bold text-black/30 uppercase mb-4 tracking-widest">Conversas</h3>
+                        <div className="grid sm:grid-cols-2 gap-3">
+                          {trashedItems.conversations.map(c => (
+                            <div key={c.id} className="bg-white border border-black/5 p-4 rounded-2xl shadow-sm flex items-center justify-between gap-4">
+                              <span className="text-sm font-medium truncate">{c.title}</span>
+                              <div className="flex items-center gap-1">
+                                <button onClick={() => restoreFromTrash(c.id, 'conv')} className="p-2 text-apple-blue hover:bg-apple-blue/10 rounded-xl transition-colors" title="Restaurar"><Icon.Restore /></button>
+                                <button onClick={() => permanentDelete(c.id, 'conv')} className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Excluir de vez"><Icon.Trash /></button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {trashedItems.proposals.length > 0 && (
+                      <div>
+                        <h3 className="text-xs font-bold text-black/30 uppercase mb-4 tracking-widest">Propostas</h3>
+                        <div className="grid sm:grid-cols-2 gap-3">
+                          {trashedItems.proposals.map(p => (
+                            <div key={p.id} className="bg-white border border-black/5 p-4 rounded-2xl shadow-sm flex items-center justify-between gap-4">
+                              <span className="text-sm font-medium truncate">{p.title}</span>
+                              <div className="flex items-center gap-1">
+                                <button onClick={() => restoreFromTrash(p.id, 'prop')} className="p-2 text-apple-blue hover:bg-apple-blue/10 rounded-xl transition-colors" title="Restaurar"><Icon.Restore /></button>
+                                <button onClick={() => permanentDelete(p.id, 'prop')} className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="Excluir de vez"><Icon.Trash /></button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 )}
               </motion.div>
             )}
